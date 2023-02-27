@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".SignInActivity"
+    android:animateLayoutChanges="true"
+    android:fitsSystemWindows="true"
+    >
+
+    <LinearLayout
+        android:id="@+id/linearLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="50dp"
+        android:gravity="center"
+        android:orientation="horizontal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageView
+            android:id="@+id/ivLogo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/logo_anim"
+            android:orientation="horizontal" />
+
+        <TextView
+            style="@style/text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:fontFamily="@font/nunito_sans_bold"
+            android:text="@string/app_name"
+            android:textSize="30sp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/llLoading"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:gravity="center">
+
+        <ImageView
+            android:id="@+id/ivLoading1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="4dp"
+            android:scaleType="center"
+            android:src="@drawable/loading1" />
+        <ImageView
+            android:id="@+id/ivLoading2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="4dp"
+            android:scaleType="center"
+            android:src="@drawable/loading2" />
+        <ImageView
+            android:id="@+id/ivLoading3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="4dp"
+            android:scaleType="center"
+            android:src="@drawable/loading3" />
+    </LinearLayout>
+
+    <LinearLayout
+        tools:visibility="visible"
+        android:visibility="gone"
+        android:id="@+id/llAuthMenu"
+        style="@style/item"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="40dp"
+
+        android:animateLayoutChanges="true"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:paddingBottom="10dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/constraint"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:layout_marginBottom="15dp"
+            android:animateLayoutChanges="true">
+
+            <ImageView
+                android:id="@+id/ivEditPhoneNumber"
+                style="@style/tint"
+                android:layout_width="25dp"
+                android:layout_height="25dp"
+                android:layout_marginStart="15dp"
+                android:scaleType="center"
+                android:src="@drawable/ic_round_back_24"
+                android:visibility="gone"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/tvSignIn"
+                style="@style/text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/fira_sans_medium"
+                android:text="@string/sign_in"
+                android:textAlignment="center"
+                android:textSize="18sp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"/>
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+        <LinearLayout
+            android:id="@+id/llPhone"
+            style="@style/item_2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="15dp"
+            android:layout_marginTop="5dp"
+            android:layout_marginBottom="15dp"
+            android:animateLayoutChanges="true"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingStart="15dp">
+
+            <TextView
+                android:id="@+id/tvCountryCode"
+                style="@style/textSecondary"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="5dp"
+                android:fontFamily="@font/fira_sans"
+                android:text="@string/country_code_ru"
+                android:textSize="14sp" />
+
+            <EditText
+                android:id="@+id/etPhone"
+                style="@style/textSecondary"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+
+                android:background="#00ffffff"
+                android:fontFamily="@font/fira_sans"
+                android:gravity="center_vertical"
+                android:hint="@string/phone"
+                android:importantForAutofill="no"
+                android:inputType="textAutoCorrect|textCapSentences|phone"
+                android:textSize="14sp"
+                tools:ignore="TextContrastCheck" />
+        </LinearLayout>
+
+        <Button
+
+            android:id="@+id/btGetSms"
+            style="@style/Widget.Material3.Button.TextButton"
+            android:layout_width="wrap_content"
+            android:layout_height="42dp"
+            android:layout_marginBottom="5dp"
+            android:alpha="0.6"
+            android:enabled="false"
+            android:fontFamily="@font/fira_sans"
+            android:text="@string/get_sms"
+            android:textColor="@color/blue_500"
+            android:textSize="15sp"
+            app:cornerRadius="12dp"
+            app:rippleColor="@color/blue_200" />
+
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/tvPolicyPrivacy"
+        style="@style/textSecondary"
+        android:alpha="0.6"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="20dp"
+        android:layout_marginBottom="16dp"
+        android:fontFamily="@font/fira_sans"
+        android:text="@string/privacy_policy"
+        android:textAlignment="center"
+        android:textSize="12sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:gravity="end"
+    android:layout_marginTop="5dp"
+    android:id="@+id/llRoot"
+    >
+
+    <LinearLayout
+        android:id="@+id/llMessage"
+        android:layout_marginHorizontal="15dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical|start"
+        android:background="@drawable/message_mine"
+        android:orientation="horizontal"
+        android:weightSum="10"
+        >
+
+        <TextView
+            android:id="@+id/tvMessage"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginVertical="10dp"
+            android:layout_marginStart="10dp"
+            android:layout_marginEnd="5dp"
+            android:fontFamily="@font/fira_sans"
+            android:maxWidth="250dp"
+            android:textColor="@color/white"
+            android:textSize="15sp" />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_marginEnd="10dp"
+            android:layout_marginBottom="7dp"
+            android:gravity="bottom"
+            android:layout_weight="10">
+
+            <TextView
+                android:id="@+id/tvTimestamp"
+                android:alpha="0.5"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="13sp"
+                android:textColor="@color/grey_200"
+                android:text="10:00" />
+        </LinearLayout>
+    </LinearLayout>
+
+</LinearLayout>
