@@ -75,7 +75,7 @@ public class ContactsFragment extends Fragment {
             intent.putExtra("chatId", "-NPFMZOnUuSGRTo7x28s");
             intent.putExtra("currentUserId", "XAf0nSdiwwPPtbMddF6OFgb5eRM2");
             intent.putExtra("id", "taCiXupiJFdxTv3310AGOuHOW8t2");
-            intent.putExtra("name", "Игнат (ковры)");
+            intent.putExtra("name", "Калама Евлампий");
             startActivity(intent);
         });
     }

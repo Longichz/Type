@@ -1,9 +1,14 @@
 package xyz.genscode.type.data;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -19,8 +24,10 @@ import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 
+import xyz.genscode.type.ChatActivity;
 import xyz.genscode.type.R;
 import xyz.genscode.type.models.Chat;
+import xyz.genscode.type.models.Message;
 import xyz.genscode.type.models.User;
 
 public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ChatListView> {
@@ -30,7 +37,8 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ChatLi
     private ArrayList<String> chats;
     private Chat chat;
     ChatListView chatListView;
-    User user;
+    User user, companionUser;
+    String chatName;
 
     public ChatListAdapter(Context context, ArrayList<String> chats, User user) {
         this.chats = chats;
@@ -48,19 +56,76 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ChatLi
 
     @Override
     public void onBindViewHolder(@NonNull ChatListView holder, int position) {
+        holder.llRoot.setVisibility(View.GONE);
+
         FirebaseDatabase database = FirebaseDatabase.getInstance();
-        DatabaseReference databaseReference = database.getReference("chats");
-        databaseReference.child(chats.get(position)).get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
+        DatabaseReference databaseReference = database.getReference();
+
+        String chatId = chats.get(position);
+        databaseReference.child("chats").child(chatId).get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
+            @SuppressLint("SetTextI18n")
             @Override
             public void onComplete(@NonNull Task<DataSnapshot> task) {
                 if(task.isSuccessful()){
                     chat = task.getResult().getValue(Chat.class);
                     if(chat != null){
 
+                        //Название для чата
+                        ArrayList<String> users = chat.getUsers();
+                        for (int i = 0; i < users.size(); i++) {
+                            String userId = users.get(i);
+                            if(users.size() <= 2){
+                                if(!userId.equals(user.getId())){
+                                    databaseReference.child("users").child(userId).get().addOnCompleteListener(task1 -> {
+                                        if(task1.isSuccessful()){
+                                            companionUser = task1.getResult().getValue(User.class);
+                                            chatName = view.getResources().getString(R.string.user_removed);
+                                            if(user != null) {
+                                                chatName = companionUser.getName();
+
+                                                //Аватар
+                                                Drawable avatarDrawable = holder.llAvatarBackground.getBackground();
+                                                avatarDrawable.setTint(Color.parseColor(companionUser.getAvatarColor()));
+                                                holder.tvAvatarChar.setText(String.valueOf(chatName.toUpperCase().charAt(0)));
+                                            }
+
+                                            holder.tvName.setText(chatName);
+
+                                            //Показываем чат
+                                            holder.llRoot.setVisibility(View.VISIBLE);
+                                        }
+                                    });
+                                }
+                            }
+                        }
+
+                        //Последнее сообщение
+                        Message lastMessage = chat.getLastMessage();
+                        if(lastMessage != null) {
+                            String lastMessageString = null;
+                            if(lastMessage.getUserId().equals(user.getId())) lastMessageString = context.getResources().getString(R.string.user_your) + ": ";
+                            if(lastMessage.getImageUrl() == null) holder.tvLastMessage.setText(lastMessageString + lastMessage.getText());
+
+                        }
+
+                        holder.button.setOnClickListener(view -> {
+                            Intent intent = new Intent(context, ChatActivity.class);
+                            intent.putExtra("chatId", chatId);
+                            intent.putExtra("currentUserId", user.getId());
+                            intent.putExtra("id", companionUser.getId());
+                            intent.putExtra("name", chatName);
+                            context.startActivity(intent);
+                        });
+
                     }
                 }
             }
         });
+    }
+
+    public void addChat(String chatId){
+        if(chatId != null) chats.add(chatId);
+        notifyDataSetChanged();
     }
 
     @Override
@@ -75,10 +140,12 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ChatLi
         TextView tvAvatarChar;
         View llAvatarBackground;
         View llRoot;
+        Button button;
 
         public ChatListView(@NonNull View itemView) {
             super(itemView);
 
+            button = view.findViewById(R.id.btChatList);
             tvName = view.findViewById(R.id.tvChatListUserName);
             tvLastMessage = view.findViewById(R.id.tvChatListLastMessage);
             tvAvatarChar = view.findViewById(R.id.tvChatListAvatarChar);

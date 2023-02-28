@@ -8,6 +8,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.view.LayoutInflater;
@@ -15,6 +16,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -50,8 +52,6 @@ public class MessengerFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_messenger, container, false);
-
-
     }
 
     @Override
@@ -62,21 +62,23 @@ public class MessengerFragment extends Fragment {
 
         ArrayList<String> chats = new ArrayList<>();
 
+        ChatListAdapter chatListAdapter = new ChatListAdapter(getContext(), chats, mUser);
+
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(view.getContext());
         linearLayoutManager.setSmoothScrollbarEnabled(true);
 
         RecyclerView rvChatList = view.findViewById(R.id.rvChatList);
         rvChatList.setLayoutManager(linearLayoutManager);
+        rvChatList.setAdapter(chatListAdapter);
 
         DatabaseReference databaseRef = FirebaseDatabase.getInstance().getReference("users");
 
-
-        databaseRef.child(mUser.getId()).child("chats").addValueEventListener(new ValueEventListener() {
+        databaseRef.child(mUser.getId()).child("chats").addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                for (DataSnapshot chatSnapshot : snapshot.getChildren()) {
-                    String chatId = chatSnapshot.getKey();
-                    chats.add(chatId);
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                for (DataSnapshot chatSnapshot : dataSnapshot.getChildren()) {
+                    String chatId = chatSnapshot.getValue(String.class);
+                    chatListAdapter.addChat(chatId);
                 }
             }
 
@@ -85,6 +87,8 @@ public class MessengerFragment extends Fragment {
                 //ERROR
             }
         });
+
+
 
     }
 }

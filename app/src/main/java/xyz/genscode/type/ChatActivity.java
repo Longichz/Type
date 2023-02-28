@@ -96,6 +96,7 @@ public class ChatActivity extends AppCompatActivity {
                             chatId = intent.getStringExtra("chatId");
                             initializeChat();
                         }else{
+                            llLoading.setVisibility(View.INVISIBLE);
                             llSend.setEnabled(true);
                             llSend.setAlpha(1);
                         }
@@ -173,6 +174,8 @@ public class ChatActivity extends AppCompatActivity {
                         DatabaseReference messagesDatabaseReference = databaseReference.child("chats").child(chatId).child("messages");
                         messagesDatabaseReference.addChildEventListener(messagesChildEventListener);
 
+                    }else{
+                        llLoading.setVisibility(View.INVISIBLE);
                     }
                 } else {
                     //CONNECT ERROR
@@ -220,6 +223,8 @@ public class ChatActivity extends AppCompatActivity {
                 }
             });
         }else{
+            chat.setLastMessage(message);
+            databaseReference.child("chats").child(chatId).child("lastMessages").setValue(message);
             databaseReference.child("chats").child(chatId).child("messages").push().setValue(message, (error1, ref1) -> {
                 if (error1 == null) {
                     llSend.setAlpha(1f);

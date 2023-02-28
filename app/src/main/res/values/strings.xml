@@ -1,5 +1,9 @@
 <resources>
     <string name="app_name">Type!</string>
+
+    <string name="user_removed">Удаленный аккаунт</string>
+    <string name="user_your">Вы</string>
+
     <string name="loading">Подождите...</string>
     <string name="apply">Применить</string>
 
