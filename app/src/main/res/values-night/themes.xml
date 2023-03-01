@@ -30,6 +30,9 @@
     <style name="item_2" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <item name="android:background">@drawable/item_2_night</item>
     </style>
+    <style name="item_3" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="android:background">@drawable/item_3_night</item>
+    </style>
     <style name="SplashTheme" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="android:statusBarColor">@color/grey_800</item>
         <item name="android:windowBackground">@drawable/splash_night</item>
@@ -54,6 +57,9 @@
     </style>
     <style name="settings_item_both" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="android:background">@drawable/item_settings_both_night</item>
+    </style>
+    <style name="item_avatar" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="android:background">@drawable/item_avatar_night</item>
     </style>
     <style name="settings_button" parent="Widget.AppCompat.Button">
         <item name="android:background">@drawable/button_settings</item>

@@ -14,6 +14,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -60,6 +61,8 @@ public class MessengerFragment extends Fragment {
 
         if(mUser == null) return;
 
+        TextView tvNoChats = view.findViewById(R.id.tvChatListNoChats);
+
         ArrayList<String> chats = new ArrayList<>();
 
         ChatListAdapter chatListAdapter = new ChatListAdapter(getContext(), chats, mUser);
@@ -73,12 +76,21 @@ public class MessengerFragment extends Fragment {
 
         DatabaseReference databaseRef = FirebaseDatabase.getInstance().getReference("users");
 
-        databaseRef.child(mUser.getId()).child("chats").addListenerForSingleValueEvent(new ValueEventListener() {
+        databaseRef.child(mUser.getId()).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                for (DataSnapshot chatSnapshot : dataSnapshot.getChildren()) {
-                    String chatId = chatSnapshot.getValue(String.class);
-                    chatListAdapter.addChat(chatId);
+                if(dataSnapshot.child("chats").getChildrenCount() > 0) {
+                    tvNoChats.setVisibility(View.GONE);
+                    for (DataSnapshot chatSnapshot : dataSnapshot.child("chats").getChildren()) {
+                        String chatId = chatSnapshot.getValue(String.class);
+                        if (chatId == null) {
+                            //CHAT REMOVED
+                        }
+                        chatListAdapter.addChat(chatId);
+                    }
+                }else{
+                    //NO CHATS
+                    tvNoChats.setVisibility(View.VISIBLE);
                 }
             }
 

@@ -69,24 +69,29 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewClas
         long messageTimestamp = message.getTimestamp();
 
         Date date = new Date(messageTimestamp);
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("hh:mm", Locale.getDefault());
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("kk:mm", Locale.getDefault());
         String formattedTime = simpleDateFormat.format(date);
 
         holder.tvMessage.setText(messageText.trim());
         holder.tvTimestamp.setText(formattedTime);
 
-        if(!messageUserId.equals(user.getId()) ){
+        if(!messageUserId.equals(user.getId())){
             holder.llRoot.setGravity(Gravity.START);
-            holder.tvMessage.setTextColor(R.color.grey_800);
-            holder.tvTimestamp.setTextColor(R.color.grey_500);
-
             if(theme == THEME_NIGHT) {
+                holder.tvMessage.setTextColor(context.getResources().getColor(R.color.grey_50));
+                holder.tvTimestamp.setTextColor(context.getResources().getColor(R.color.grey_00));
                 holder.llMessage.setBackground(holder.messageNightDrawable);
             }else{
+                holder.tvMessage.setTextColor(context.getResources().getColor(R.color.grey_800));
+                holder.tvTimestamp.setTextColor(context.getResources().getColor(R.color.grey_500));
                 holder.llMessage.setBackground(holder.messageDayDrawable);
             }
+        }else{
+            holder.llRoot.setGravity(Gravity.END);
+            holder.tvMessage.setTextColor(context.getResources().getColor(R.color.white));
+            holder.tvTimestamp.setTextColor(context.getResources().getColor(R.color.grey_200));
+            holder.llMessage.setBackground(holder.messageMineDrawable);
         }
-
 
     }
 
@@ -107,7 +112,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewClas
         TextView tvMessage;
         TextView tvTimestamp;
         LinearLayout llRoot;
-        Drawable messageDayDrawable, messageNightDrawable;
+        Drawable messageDayDrawable, messageNightDrawable, messageMineDrawable;
 
 
         public ViewClass(@NonNull View itemView) {
@@ -117,7 +122,8 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewClas
             tvMessage = itemView.findViewById(R.id.tvMessage);
             tvTimestamp = itemView.findViewById(R.id.tvTimestamp);
             messageDayDrawable = itemView.getResources().getDrawable(R.drawable.message_day);
-            messageDayDrawable = itemView.getResources().getDrawable(R.drawable.message_night);
+            messageNightDrawable = itemView.getResources().getDrawable(R.drawable.message_night);
+            messageMineDrawable = itemView.getResources().getDrawable(R.drawable.message_mine);
         }
     }
 }

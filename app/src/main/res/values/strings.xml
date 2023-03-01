@@ -1,8 +1,17 @@
 <resources>
     <string name="app_name">Type!</string>
 
+    <string name="user_profile">Профиль</string>
     <string name="user_removed">Удаленный аккаунт</string>
     <string name="user_your">Вы</string>
+    <string name="user_type">Написать</string>
+    <string name="user_call">Позвонить</string>
+    <string name="user_not_registered_header">Внимание</string>
+    <string name="user_not_registered_content">Этот номер не зарегестрирован в Type! Вы не сможете начать диалог 😥.</string>
+    <string name="user_phone_hidden">Телефон: скрыт</string>
+    <string name="user_hidden">Не указано</string>
+    <string name="user_invalid">Неизвестный</string>
+    <string name="user_search">Найти</string>
 
     <string name="loading">Подождите...</string>
     <string name="apply">Применить</string>
@@ -41,8 +50,10 @@
 
     <string name="contacts_search">Поиск</string>
     <string name="contacts_type">Написать</string>
+    <string name="contacts_no_contacts">У вас нету контактов.</string>
 
     <string name="chat_type">Сообщение</string>
+    <string name="chat_no_chats">Начните общение во вкладке контактов 📘</string>
 
 
 </resources>

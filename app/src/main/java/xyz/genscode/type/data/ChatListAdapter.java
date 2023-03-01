@@ -17,8 +17,10 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import org.w3c.dom.Text;
 
@@ -80,7 +82,7 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ChatLi
                                         if(task1.isSuccessful()){
                                             companionUser = task1.getResult().getValue(User.class);
                                             chatName = view.getResources().getString(R.string.user_removed);
-                                            if(user != null) {
+                                            if(companionUser != null) {
                                                 chatName = companionUser.getName();
 
                                                 //Аватар
@@ -100,13 +102,23 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ChatLi
                         }
 
                         //Последнее сообщение
-                        Message lastMessage = chat.getLastMessage();
-                        if(lastMessage != null) {
-                            String lastMessageString = null;
-                            if(lastMessage.getUserId().equals(user.getId())) lastMessageString = context.getResources().getString(R.string.user_your) + ": ";
-                            if(lastMessage.getImageUrl() == null) holder.tvLastMessage.setText(lastMessageString + lastMessage.getText());
+                        databaseReference.child("chats").child(chatId).child("lastMessage").addValueEventListener(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(DataSnapshot dataSnapshot) {
+                                System.out.println("chatChanged");
+                                Message lastMessage = dataSnapshot.getValue(Message.class);
+                                if(lastMessage != null) {
+                                    String lastMessageString = "";
+                                    if(lastMessage.getUserId().equals(user.getId())) lastMessageString = context.getResources().getString(R.string.user_your) + ": ";
+                                    if(lastMessage.getImageUrl() == null) holder.tvLastMessage.setText(lastMessageString + lastMessage.getText());
+                                }
+                            }
 
-                        }
+                            @Override
+                            public void onCancelled(@NonNull DatabaseError error) {
+                                //ERROR
+                            }
+                        });
 
                         holder.button.setOnClickListener(view -> {
                             Intent intent = new Intent(context, ChatActivity.class);

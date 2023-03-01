@@ -224,7 +224,7 @@ public class ChatActivity extends AppCompatActivity {
             });
         }else{
             chat.setLastMessage(message);
-            databaseReference.child("chats").child(chatId).child("lastMessages").setValue(message);
+            databaseReference.child("chats").child(chatId).child("lastMessage").setValue(message);
             databaseReference.child("chats").child(chatId).child("messages").push().setValue(message, (error1, ref1) -> {
                 if (error1 == null) {
                     llSend.setAlpha(1f);

@@ -26,6 +26,7 @@ import com.google.firebase.appcheck.playintegrity.PlayIntegrityAppCheckProviderF
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
+import xyz.genscode.type.fragments.ContactsFragment;
 import xyz.genscode.type.fragments.MessengerFragment;
 import xyz.genscode.type.fragments.SettingsFragment;
 import xyz.genscode.type.models.User;
@@ -35,6 +36,9 @@ public class MainActivity extends AppCompatActivity {
     public static final int MESSENGER_FRAGMENT = 0;
     public static final int CONTACTS_FRAGMENT = 1;
     public static final int SETTINGS_FRAGMENT = 2;
+    boolean contacts_initialized = false;
+    boolean messenger_initialized = false;
+    boolean settings_initialized = false;
     User user;
     TextView tvTopIndicator;
     Button btBottomMessenger; ImageView ivBottomMessenger;
@@ -88,7 +92,6 @@ public class MainActivity extends AppCompatActivity {
 
         initializeSettings();
         initializeMessenger();
-        System.out.println(currentFragment);
         switch (currentFragment){
             case CONTACTS_FRAGMENT:
                 navigate("contacts");
@@ -142,6 +145,8 @@ public class MainActivity extends AppCompatActivity {
 
             fcvMessenger.setVisibility(View.INVISIBLE); fcvContacts.setVisibility(View.VISIBLE); fcvSettings.setVisibility(View.INVISIBLE);
 
+            initializeContacts();
+
             ivBottomMessenger.setColorFilter(getResources().getColor(R.color.grey_300));
             ivBottomContacts.setColorFilter(getResources().getColor(R.color.type3));
             ivBottomSettings.setColorFilter(getResources().getColor(R.color.grey_300));
@@ -179,26 +184,46 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public void initializeMessenger(){
-        MessengerFragment fragment = new MessengerFragment();
-        Bundle args = new Bundle();
-        args.putSerializable(SettingsFragment.ARG_USER, user);
-        fragment.setArguments(args);
+    public void initializeContacts(){
+        if(!contacts_initialized) {
+            contacts_initialized = true;
+            ContactsFragment fragment = new ContactsFragment();
+            Bundle args = new Bundle();
+            args.putSerializable(SettingsFragment.ARG_USER, user);
+            fragment.setArguments(args);
 
-        getSupportFragmentManager().beginTransaction()
-                .replace(R.id.fcvMessenger, fragment)
-                .commit();
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.fcvContacts, fragment)
+                    .commit();
+        }
+    }
+
+    public void initializeMessenger(){
+        if(!messenger_initialized) {
+            messenger_initialized = true;
+            MessengerFragment fragment = new MessengerFragment();
+            Bundle args = new Bundle();
+            args.putSerializable(SettingsFragment.ARG_USER, user);
+            fragment.setArguments(args);
+
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.fcvMessenger, fragment)
+                    .commit();
+        }
     }
 
     public void initializeSettings(){
-        SettingsFragment fragment = new SettingsFragment();
-        Bundle args = new Bundle();
-        args.putSerializable(SettingsFragment.ARG_USER, user);
-        fragment.setArguments(args);
+        if(!settings_initialized) {
+            settings_initialized = true;
+            SettingsFragment fragment = new SettingsFragment();
+            Bundle args = new Bundle();
+            args.putSerializable(SettingsFragment.ARG_USER, user);
+            fragment.setArguments(args);
 
-        getSupportFragmentManager().beginTransaction()
-                .replace(R.id.fcvSettings, fragment)
-                .commit();
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.fcvSettings, fragment)
+                    .commit();
+        }
     }
 
 }
