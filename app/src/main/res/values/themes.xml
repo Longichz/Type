@@ -69,6 +69,10 @@
         <item name="android:background">@drawable/item_avatar_day</item>
     </style>
 
+    <style name="dialog" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="android:background">@drawable/dialog</item>
+    </style>
+
     <style name="settings_button" parent="Widget.AppCompat.Button">
         <item name="android:background">@drawable/button_settings</item>
         <item name="android:textColor">@color/grey_700</item>

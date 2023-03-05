@@ -1,7 +1,9 @@
 package xyz.genscode.type.fragments;
 
+import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -13,6 +15,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.os.Handler;
+import android.provider.Settings;
 import android.telephony.PhoneNumberUtils;
 import android.text.Editable;
 import android.text.InputFilter;
@@ -27,6 +30,7 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import xyz.genscode.type.ChatActivity;
@@ -43,7 +47,7 @@ public class ContactsFragment extends Fragment {
     public static final int PERMISSION_READ_CONTACTS = 0;
     View view, llLoading;
     User mUser;
-    static List<Contacts.Contact> contacts;
+    static List<Contacts.Contact> contacts = new ArrayList<>();
     RecyclerView rvContactsList;
 
     @Override
@@ -78,7 +82,7 @@ public class ContactsFragment extends Fragment {
         ImageView loading2 = view.findViewById(R.id.ivContactsLoading2); handler.postDelayed(() -> loading2.startAnimation(anim2), 125);
         ImageView loading3 = view.findViewById(R.id.ivContactsLoading3); handler.postDelayed(() -> loading3.startAnimation(anim3), 250);
         llLoading = view.findViewById(R.id.llContactsLoading);
-        llLoading.setVisibility(View.VISIBLE);
+
 
         View llStartDialog = view.findViewById(R.id.llContactsStartDialog);
         EditText etSearch = view.findViewById(R.id.etContactsSearch);
@@ -132,7 +136,8 @@ public class ContactsFragment extends Fragment {
     }
 
     public void getContacts(){
-        if(contacts == null) {
+        System.out.println(contacts.size());
+        if(contacts.size() == 0) {
 
             int permissionStatus = ContextCompat.checkSelfPermission(getContext(), android.Manifest.permission.READ_CONTACTS);
 
@@ -142,8 +147,28 @@ public class ContactsFragment extends Fragment {
                 loadContacts();
 
             } else {
-                ActivityCompat.requestPermissions(((MainActivity) getContext()), new String[]{android.Manifest.permission.READ_CONTACTS},
-                        PERMISSION_READ_CONTACTS);
+                if (!shouldShowRequestPermissionRationale(
+                        Manifest.permission.READ_CONTACTS)) {
+                    ((MainActivity) getActivity()).dialog.showMessage(
+                            getResources().getString(R.string.contacts_permission_header),
+                            getResources().getString(R.string.contacts_permission_content),
+                            getResources().getString(R.string.contacts_permission_allow),
+                            getResources().getString(R.string.contacts_permission_back)
+                    );
+                    Button messageButton1 = ((MainActivity) getActivity()).dialog.getMessageButton1();
+                    Button messageButton2 = ((MainActivity) getActivity()).dialog.getMessageButton2();
+
+                    messageButton1.setOnClickListener(view -> {
+                        requestPermissions(new String[]{Manifest.permission.READ_CONTACTS}, PERMISSION_READ_CONTACTS);
+                        ((MainActivity) getActivity()).dialog.hideMessage();
+                    });
+                    messageButton2.setOnClickListener(view -> {
+                        loadContacts();
+                        ((MainActivity) getActivity()).dialog.hideMessage();
+                    });
+                }else{
+                    onPermissionDenied();
+                }
             }
         }else{
             loadContacts();
@@ -151,6 +176,7 @@ public class ContactsFragment extends Fragment {
     }
 
     public void loadContacts(){
+        llLoading.setVisibility(View.VISIBLE);
         if (contacts.size() > 0) {
             ContactsAdapter contactsAdapter = new ContactsAdapter(view.getContext(), contacts, mUser);
             rvContactsList.setAdapter(contactsAdapter);
@@ -172,9 +198,42 @@ public class ContactsFragment extends Fragment {
                     getContacts();
                 } else {
                     // permission denied
-                    ((MainActivity) getContext()).navigate("messenger");
+                    onPermissionDenied();
                 }
-                return;
+                break;
         }
     }
+
+    private void onPermissionDenied(){
+        TextView tvNoContacts = view.findViewById(R.id.tvContactsNoContacts);
+        tvNoContacts.setText(getResources().getString(R.string.contacts_permission_denied));
+        tvNoContacts.setVisibility(View.VISIBLE);
+        tvNoContacts.setOnClickListener(view -> {
+            ((MainActivity) getActivity()).dialog.showMessage(
+                    getResources().getString(R.string.contacts_permission_header),
+                    getResources().getString(R.string.contacts_permission_content),
+                    getResources().getString(R.string.contacts_permission_allow),
+                    getResources().getString(R.string.contacts_permission_back)
+            );
+            Button messageButton1 = ((MainActivity) getActivity()).dialog.getMessageButton1();
+            Button messageButton2 = ((MainActivity) getActivity()).dialog.getMessageButton2();
+
+            messageButton1.setOnClickListener(view1 -> {
+                Intent intent = new Intent();
+                intent.setAction(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+                Uri uri = Uri.fromParts("package", getActivity().getPackageName(), null);
+                intent.setData(uri);
+                startActivity(intent);
+                ((MainActivity) getActivity()).dialog.hideMessage();
+            });
+            messageButton2.setOnClickListener(view1 -> {
+                loadContacts();
+                ((MainActivity) getActivity()).dialog.hideMessage();
+            });
+        });
+        llLoading.setVisibility(View.GONE);
+    }
+
+
+
 }

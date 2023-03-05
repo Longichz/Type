@@ -135,8 +135,11 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ChatLi
         });
     }
 
-    public void addChat(String chatId){
-        if(chatId != null) chats.add(chatId);
+    public void setChats(ArrayList<String> chats){
+        if(chats.size() > 0){
+            this.chats.clear();
+            this.chats = chats;
+        }
         notifyDataSetChanged();
     }
 

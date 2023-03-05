@@ -19,6 +19,7 @@ import android.widget.TextView;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -81,13 +82,14 @@ public class MessengerFragment extends Fragment {
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if(dataSnapshot.child("chats").getChildrenCount() > 0) {
                     tvNoChats.setVisibility(View.GONE);
+                    ArrayList<String> chats = new ArrayList<>();
                     for (DataSnapshot chatSnapshot : dataSnapshot.child("chats").getChildren()) {
                         String chatId = chatSnapshot.getValue(String.class);
-                        if (chatId == null) {
-                            //CHAT REMOVED
+                        if (chatId != null) {
+                            chats.add(chatId);
                         }
-                        chatListAdapter.addChat(chatId);
                     }
+                    chatListAdapter.setChats(chats);
                 }else{
                     //NO CHATS
                     tvNoChats.setVisibility(View.VISIBLE);

@@ -6,6 +6,7 @@ public class Message {
     private long timestamp;
     private String text;
     private String imageUrl;
+    private boolean edited = false;
 
     public Message() {
     }
@@ -16,6 +17,14 @@ public class Message {
         this.timestamp = timestamp;
         this.text = text;
         this.imageUrl = imageUrl;
+    }
+
+    public boolean isEdited() {
+        return edited;
+    }
+
+    public void setEdited(boolean edited) {
+        this.edited = edited;
     }
 
     public String getUserId() {

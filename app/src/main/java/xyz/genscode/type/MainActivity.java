@@ -26,12 +26,15 @@ import com.google.firebase.appcheck.playintegrity.PlayIntegrityAppCheckProviderF
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
+import xyz.genscode.type.dialog.Dialog;
 import xyz.genscode.type.fragments.ContactsFragment;
 import xyz.genscode.type.fragments.MessengerFragment;
 import xyz.genscode.type.fragments.SettingsFragment;
 import xyz.genscode.type.models.User;
 
 public class MainActivity extends AppCompatActivity {
+
+    public Dialog dialog;
 
     public static final int MESSENGER_FRAGMENT = 0;
     public static final int CONTACTS_FRAGMENT = 1;
@@ -65,9 +68,11 @@ public class MainActivity extends AppCompatActivity {
         rootView.startAnimation(enterAnimation);
 
         Intent intent = getIntent();
-        if(intent != null){
-            user = (User) intent.getSerializableExtra("user");
-        }
+        if(intent == null) finish();
+
+        user = (User) intent.getSerializableExtra("user");
+
+        createDialog();
 
         tvTopIndicator = findViewById(R.id.tvTopIndicator);
         btBottomMessenger = findViewById(R.id.btMessenger);
@@ -223,6 +228,26 @@ public class MainActivity extends AppCompatActivity {
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.fcvSettings, fragment)
                     .commit();
+        }
+    }
+
+    private void createDialog(){
+        if(dialog == null){
+            System.out.println("Dialog: Now class is constructing...");
+            TextView messageHeader = findViewById(R.id.message_tvHeader);
+            TextView messageContent = findViewById(R.id.message_tvContent);
+            Button messageButton1 = findViewById(R.id.message_bt);
+            Button messageButton2 = findViewById(R.id.message_bt2);
+            View messageInclude = findViewById(R.id.llIncludeMessage);
+            View messageBody = findViewById(R.id.message_body);
+
+            dialog = new Dialog(messageHeader, messageContent, messageButton1, messageButton2, messageInclude, messageBody);
+        }else{
+            System.out.println("Dialog: Now class is already constructed");
+            System.out.println("Dialog: Removing object...");
+            dialog = null;
+            System.gc();
+            createDialog();
         }
     }
 

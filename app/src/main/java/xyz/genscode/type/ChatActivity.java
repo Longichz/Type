@@ -152,12 +152,15 @@ public class ChatActivity extends AppCompatActivity {
 
                             @Override
                             public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
-
+                                Message changedMessage = snapshot.getValue(Message.class);
+                                changedMessage.setEdited(true);
+                                adapter.changeMessage(changedMessage);
                             }
 
                             @Override
                             public void onChildRemoved(@NonNull DataSnapshot snapshot) {
-
+                                Message removedMessage = snapshot.getValue(Message.class);
+                                adapter.removeMessage(removedMessage);
                             }
 
                             @Override

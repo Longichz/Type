@@ -40,7 +40,6 @@ import xyz.genscode.type.models.User;
 
 public class ProfileActivity extends AppCompatActivity {
 
-    Context context;
     User user;
     User currentUser;
     String userId, phone;
@@ -63,8 +62,6 @@ public class ProfileActivity extends AppCompatActivity {
         ViewGroup rootView = findViewById(android.R.id.content);
         Animation enterAnimation = AnimationUtils.loadAnimation(this, R.anim.jump);
         rootView.startAnimation(enterAnimation);
-
-        context = getApplicationContext();
 
         Intent intent = getIntent();
         if(intent == null || (!intent.hasExtra("phone") && !intent.hasExtra("currentUser"))) finish();
@@ -225,7 +222,10 @@ public class ProfileActivity extends AppCompatActivity {
                             chats.add(chatId);
                         }
                         // Проверяем каждый чат на наличие userId
-
+                        if(chats.size() == 0){
+                            startActivity(intent1);
+                            return;
+                        }
                         for (String chatId : chats) {
                             databaseReference.child("chats").child(chatId).child("users").addListenerForSingleValueEvent(new ValueEventListener() {
                                 @Override
@@ -248,7 +248,7 @@ public class ProfileActivity extends AppCompatActivity {
                                         }
                                     }
                                     // Если userId не найден в текущем чате, то проверяем следующий чат
-                                    if (!foundUser && !foundChat && chatId.equals(chats.get(chats.size() - 1))) {
+                                    if (!foundUser && !foundChat) {
                                         // Не нашли ни один чат, содержащий userId, стартуем без chatId
                                         startActivity(intent1);
                                     }

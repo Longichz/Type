@@ -74,6 +74,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewClas
 
         holder.tvMessage.setText(messageText.trim());
         holder.tvTimestamp.setText(formattedTime);
+        if(message.isEdited()) holder.tvTimestamp.setText(context.getResources().getString(R.string.message_edited) + formattedTime);
 
         if(!messageUserId.equals(user.getId())){
             holder.llRoot.setGravity(Gravity.START);
@@ -100,6 +101,28 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewClas
         messages.add(message);
         Collections.reverse(messages);
         notifyDataSetChanged();
+    }
+    public void removeMessage(Message message){
+        for (int i = 0; i < messages.size(); i++){
+            System.out.println(messages.get(i).getText());
+            if(message.getTimestamp() == messages.get(i).getTimestamp() &&
+            message.getText() == messages.get(i).getText()){
+                messages.remove(i);
+                notifyDataSetChanged();
+                break;
+            }
+        }
+    }
+    public void changeMessage(Message message){
+        for (int i = 0; i < messages.size(); i++){
+            System.out.println(messages.get(i).getText());
+            if(message.getTimestamp() == messages.get(i).getTimestamp() &&
+                    message.getUserId() == messages.get(i).getUserId()){
+                messages.set(i, message);
+                notifyDataSetChanged();
+                break;
+            }
+        }
     }
 
     @Override
