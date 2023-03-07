@@ -4,6 +4,7 @@
     <string name="message_bt2">Закрыть</string>
     <string name="message_bt">Понятно</string>
     <string name="message_edited">ред.</string>
+    <string name="message_unread">•</string>
 
     <string name="user_profile">Профиль</string>
     <string name="user_removed">Удаленный аккаунт</string>
@@ -52,7 +53,7 @@
     <string name="settings_question">Узнать</string>
     <string name="settings_add">Добавить</string>
 
-    <string name="contacts_search">Поиск</string>
+    <string name="contacts_search">Найти в Type!</string>
     <string name="contacts_type">Написать</string>
     <string name="contacts_no_contacts">У вас нету контактов.</string>
     <string name="contacts_permission_header">Внимание</string>

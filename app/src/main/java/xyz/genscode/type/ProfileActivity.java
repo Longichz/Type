@@ -75,7 +75,7 @@ public class ProfileActivity extends AppCompatActivity {
         ImageView loading2 = findViewById(R.id.ivProfileLoading2); handler.postDelayed(() -> loading2.startAnimation(anim2), 125);
         ImageView loading3 = findViewById(R.id.ivProfileLoading3); handler.postDelayed(() -> loading3.startAnimation(anim3), 250);
 
-        llBack = findViewById(R.id.llProfileBack);
+        llBack = findViewById(R.id.llProfileBack); llBack.setOnClickListener(view -> finish());
         llProfileNotRegistered = findViewById(R.id.llProfileNotRegistered);
         llLoading = findViewById(R.id.llProfileLoading);
         llActions = findViewById(R.id.llProfileActionsPanel);
@@ -99,31 +99,18 @@ public class ProfileActivity extends AppCompatActivity {
         currentUser = (User) intent.getSerializableExtra("currentUser");
 
         if(intent.hasExtra("userId")) {
+            userId = intent.getStringExtra("userId");
             databaseReference.child("users").child(userId).get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
                 @Override
                 public void onComplete(@NonNull Task<DataSnapshot> task) {
+                    llActions.setAlpha(1);
+                    llActions.setEnabled(true);
+
                     if(task.isSuccessful()){
                         user = task.getResult().getValue(User.class);
-                        if(user != null){
-                            userId = user.getId();
-
-                            tvName.setText(user.getName());
-                            tvPhone.setText(user.getPhone());
-                            tvAvatar.setText(String.valueOf(user.getName().toUpperCase().charAt(0)));
-                            if(user.getInfo() != null) tvAbout.setText(user.getInfo());
-
-                            Drawable backgroundDrawable = llAvatar.getBackground();
-                            backgroundDrawable.setTint(Color.parseColor(user.getAvatarColor()));
-
-                            llActions.setAlpha(1);
-                            llActions.setEnabled(true);
-                            btCall.setEnabled(true);
-                            btType.setEnabled(true);
-                            tvName.setVisibility(View.VISIBLE);
-                            llPhone.setVisibility(View.VISIBLE);
-                            llAbout.setVisibility(View.VISIBLE);
-                            llLoading.setVisibility(View.GONE);
-                        }
+                        loadUser();
+                    }else{
+                        //ERROR
                     }
                 }
             });
@@ -148,52 +135,9 @@ public class ProfileActivity extends AppCompatActivity {
                         for (Map.Entry<String, User> entry : hashMap.entrySet()) {
                             user = entry.getValue();
                         }
-
-                        if(user != null){
-                            userId = user.getId();
-                            String name = user.getName() + "";
-                            tvName.setText(name);
-                            tvPhone.setText(user.getPhone());
-                            tvAvatar.setText(String.valueOf(name.toUpperCase().charAt(0)));
-                            if(user.getInfo() != null) tvAbout.setText(user.getInfo());
-
-                            Drawable backgroundDrawable = llAvatar.getBackground();
-                            backgroundDrawable.setTint(Color.parseColor(user.getAvatarColor()));
-
-                            tvAvatar.setVisibility(View.VISIBLE);
-                            tvName.setVisibility(View.VISIBLE);
-                            llPhone.setVisibility(View.VISIBLE);
-                            llAbout.setVisibility(View.VISIBLE);
-                            llLoading.setVisibility(View.GONE);
-
-                            if(currentUser.getId().equals(user.getId())){
-                                llType.setAlpha(0.6f);
-                            }else{
-                                btType.setEnabled(true);
-                            }
-
-                            btCall.setEnabled(true);
-                        }
+                        loadUser();
                     } else {
-                        if(intent.hasExtra("name")) {
-                            String name = intent.getStringExtra("name");
-                            tvName.setText(name);
-                            tvAvatar.setText(String.valueOf(name.toUpperCase().charAt(0)));
-                        }else{
-                            String name = getResources().getString(R.string.user_invalid);
-                            tvAvatar.setText(String.valueOf(name.toUpperCase().charAt(0)));
-                        }
-
-                        tvPhone.setText(phone);
-
-                        tvAvatar.setVisibility(View.VISIBLE);
-                        tvName.setVisibility(View.VISIBLE);
-                        llPhone.setVisibility(View.VISIBLE);
-                        llLoading.setVisibility(View.GONE);
-                        llProfileNotRegistered.setVisibility(View.VISIBLE);
-
-                        llType.setAlpha(0.6f);
-                        btCall.setEnabled(true);
+                        loadUnknownUser();
                     }
                 }
 
@@ -203,76 +147,131 @@ public class ProfileActivity extends AppCompatActivity {
                 }
             });
 
-            llBack.setOnClickListener(view -> finish());
-
-            btType.setOnClickListener(view -> {
-                btType.setEnabled(false);
-                Intent intent1 = new Intent(getBaseContext(), ChatActivity.class);
-                intent1.putExtra("id", user.getId());
-                intent1.putExtra("currentUserId", currentUser.getId());
-                intent1.putExtra("name", user.getName());
-
-                databaseReference.child("users").child(currentUser.getId()).child("chats").addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        // Получаем список всех чатов пользователя
-                        ArrayList<String> chats = new ArrayList<>();
-                        for (DataSnapshot chatSnapshot : dataSnapshot.getChildren()) {
-                            String chatId = chatSnapshot.getValue(String.class);
-                            chats.add(chatId);
-                        }
-                        // Проверяем каждый чат на наличие userId
-                        if(chats.size() == 0){
-                            startActivity(intent1);
-                            return;
-                        }
-                        for (String chatId : chats) {
-                            databaseReference.child("chats").child(chatId).child("users").addListenerForSingleValueEvent(new ValueEventListener() {
-                                @Override
-                                public void onDataChange(DataSnapshot dataSnapshot) {
-                                    // Проверяем каждого пользователя в чате на наличие userId
-                                    boolean foundChat = false;
-                                    boolean foundUser = false;
-                                    for (DataSnapshot userSnapshot : dataSnapshot.getChildren()) {
-                                        String userIdInChat = userSnapshot.getValue(String.class);
-                                        System.out.println(userIdInChat + " = " + userId);
-                                        if (userIdInChat.equals(userId)) {
-                                            // Нашли чат, содержащий userId
-                                            foundChat = true;
-                                            foundUser = true;
-
-                                            System.out.println(chatId);
-                                            intent1.putExtra("chatId", chatId);
-                                            startActivity(intent1);
-                                            break;
-                                        }
-                                    }
-                                    // Если userId не найден в текущем чате, то проверяем следующий чат
-                                    if (!foundUser && !foundChat) {
-                                        // Не нашли ни один чат, содержащий userId, стартуем без chatId
-                                        startActivity(intent1);
-                                    }
-                                }
-                                @Override
-                                public void onCancelled(DatabaseError databaseError) {
-                                    // Обработка ошибок
-                                    btType.setEnabled(true);
-                                }
-                            });
-                        }
-                    }
-
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError error) {
-                        btType.setEnabled(true);
-                    }
-                });
-
-            });
         }
 
+        btType.setOnClickListener(view -> {
+            if(intent.hasExtra("fromChat")) {
+                finish();
+                return;
+            }
 
+            btType.setEnabled(false);
+            Intent intent1 = new Intent(getBaseContext(), ChatActivity.class);
+            intent1.putExtra("id", user.getId());
+            intent1.putExtra("currentUserId", currentUser.getId());
+            intent1.putExtra("name", user.getName());
 
+            databaseReference.child("users").child(currentUser.getId()).child("chats").addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    // Получаем список всех чатов пользователя
+                    ArrayList<String> chats = new ArrayList<>();
+                    for (DataSnapshot chatSnapshot : dataSnapshot.getChildren()) {
+                        String chatId = chatSnapshot.getValue(String.class);
+                        chats.add(chatId);
+                    }
+                    // Проверяем каждый чат на наличие userId
+                    if(chats.size() == 0){
+                        startActivity(intent1);
+                        return;
+                    }
+                    for (String chatId : chats) {
+                        databaseReference.child("chats").child(chatId).child("users").addListenerForSingleValueEvent(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(DataSnapshot dataSnapshot) {
+                                // Проверяем каждого пользователя в чате на наличие userId
+                                boolean foundChat = false;
+                                boolean foundUser = false;
+                                for (DataSnapshot userSnapshot : dataSnapshot.getChildren()) {
+                                    String userIdInChat = userSnapshot.getValue(String.class);
+                                    System.out.println(userIdInChat + " = " + userId);
+                                    if (userIdInChat.equals(userId)) {
+                                        // Нашли чат, содержащий userId
+                                        foundChat = true;
+                                        foundUser = true;
+
+                                        System.out.println(chatId);
+                                        intent1.putExtra("chatId", chatId);
+                                        startActivity(intent1);
+                                        break;
+                                    }
+                                }
+                                // Если userId не найден в текущем чате, то проверяем следующий чат
+                                if (!foundUser && !foundChat) {
+                                    // Не нашли ни один чат, содержащий userId, стартуем без chatId
+                                    startActivity(intent1);
+                                }
+                            }
+                            @Override
+                            public void onCancelled(DatabaseError databaseError) {
+                                // Обработка ошибок
+                                btType.setEnabled(true);
+                            }
+                        });
+                    }
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
+                    btType.setEnabled(true);
+                }
+            });
+
+        });
+
+    }
+
+    private void loadUnknownUser(){
+        Intent intent = getIntent();
+        if(intent.hasExtra("name")) {
+            String name = intent.getStringExtra("name");
+            tvName.setText(name);
+            tvAvatar.setText(String.valueOf(name.toUpperCase().charAt(0)));
+        }else{
+            String name = getResources().getString(R.string.user_invalid);
+            tvAvatar.setText(String.valueOf(name.toUpperCase().charAt(0)));
+        }
+
+        tvPhone.setText(phone);
+
+        tvAvatar.setVisibility(View.VISIBLE);
+        tvName.setVisibility(View.VISIBLE);
+        llPhone.setVisibility(View.VISIBLE);
+        llLoading.setVisibility(View.GONE);
+        llProfileNotRegistered.setVisibility(View.VISIBLE);
+
+        llType.setAlpha(0.6f);
+        btCall.setEnabled(true);
+    }
+
+    private void loadUser(){
+        if(user != null){
+            userId = user.getId();
+            String name = user.getName() + "";
+            tvName.setText(name);
+            tvPhone.setText(user.getPhone());
+            tvAvatar.setText(String.valueOf(name.toUpperCase().charAt(0)));
+            if(user.getInfo() != null) tvAbout.setText(user.getInfo());
+
+            Drawable backgroundDrawable = llAvatar.getBackground();
+            backgroundDrawable.setTint(Color.parseColor(user.getAvatarColor()));
+
+            tvAvatar.setVisibility(View.VISIBLE);
+            tvName.setVisibility(View.VISIBLE);
+            llPhone.setVisibility(View.VISIBLE);
+            llAbout.setVisibility(View.VISIBLE);
+            llLoading.setVisibility(View.GONE);
+
+            if(currentUser.getId().equals(user.getId())){
+                llType.setAlpha(0.6f);
+            }else{
+                btType.setEnabled(true);
+            }
+
+            btCall.setEnabled(true);
+        }else{
+            loadUnknownUser();
+        }
     }
 
 }

@@ -60,15 +60,12 @@
     <style name="settings_item_end" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="android:background">@drawable/item_settings_end_day</item>
     </style>
-
     <style name="settings_item_both" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="android:background">@drawable/item_settings_both_day</item>
     </style>
-
     <style name="item_avatar" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="android:background">@drawable/item_avatar_day</item>
     </style>
-
     <style name="dialog" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="android:background">@drawable/dialog</item>
     </style>
@@ -104,6 +101,10 @@
         <item name="android:paddingStart">15dp</item>
         <item name="android:textAlignment">viewStart</item>
         <item name="android:textSize">15dp</item>
+    </style>
+
+    <style name="item_unread" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="android:background">@drawable/item_unread_day</item>
     </style>
 
 </resources>

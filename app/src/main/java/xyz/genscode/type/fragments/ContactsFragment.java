@@ -142,9 +142,11 @@ public class ContactsFragment extends Fragment {
             int permissionStatus = ContextCompat.checkSelfPermission(getContext(), android.Manifest.permission.READ_CONTACTS);
 
             if (permissionStatus == PackageManager.PERMISSION_GRANTED) {
-
-                contacts = Contacts.getContacts(view.getContext());
-                loadContacts();
+                Thread thr = new Thread(() -> {
+                    contacts = Contacts.getContacts(view.getContext());
+                    getActivity().runOnUiThread(this::loadContacts);
+                });
+                thr.start();
 
             } else {
                 if (!shouldShowRequestPermissionRationale(

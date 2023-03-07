@@ -13,15 +13,19 @@ import android.graphics.Rect;
 import android.os.Bundle;
 import android.os.Handler;
 import android.provider.ContactsContract;
+import android.transition.Fade;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.view.WindowManager;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -38,6 +42,7 @@ import java.util.Map;
 import xyz.genscode.type.data.MessageAdapter;
 import xyz.genscode.type.models.Chat;
 import xyz.genscode.type.models.Message;
+import xyz.genscode.type.models.MessageUnread;
 import xyz.genscode.type.models.User;
 import xyz.genscode.type.utils.AvatarColors;
 
@@ -56,6 +61,17 @@ public class ChatActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
 
+        overridePendingTransition(0, 0);
+
+        getWindow().setEnterTransition(new Fade());
+        getWindow().setExitTransition(new Fade());
+        getWindow().setReenterTransition(new Fade());
+        getWindow().setReturnTransition(new Fade());
+
+        ViewGroup rootView = findViewById(android.R.id.content);
+        Animation enterAnimation = AnimationUtils.loadAnimation(this, R.anim.jump);
+        rootView.startAnimation(enterAnimation);
+
         Handler handler = new Handler();
 
         Animation anim = new AlphaAnimation(0.5f, 1.0f); anim.setDuration(250); anim.setRepeatMode(Animation.REVERSE); anim.setRepeatCount(Animation.INFINITE);
@@ -70,7 +86,7 @@ public class ChatActivity extends AppCompatActivity {
         database = FirebaseDatabase.getInstance();
         databaseReference = database.getReference();
 
-        TextView tvName = findViewById(R.id.tvChatTopIndicator);
+        TextView tvName = findViewById(R.id.tvChatName); tvName.setEnabled(false);
         View llBack = findViewById(R.id.llChatBack);
         llSend = findViewById(R.id.llChatSend);
         etMessage = findViewById(R.id.etChatMessage);
@@ -100,6 +116,15 @@ public class ChatActivity extends AppCompatActivity {
                             llSend.setEnabled(true);
                             llSend.setAlpha(1);
                         }
+
+                        tvName.setEnabled(true);
+                        tvName.setOnClickListener(view -> {
+                            Intent profileIntent = new Intent(this, ProfileActivity.class);
+                            profileIntent.putExtra("userId", user.getId());
+                            profileIntent.putExtra("currentUser", currentUser);
+                            profileIntent.putExtra("fromChat", true);
+                            startActivity(profileIntent);
+                        });
                     }
                 });
             }
@@ -135,7 +160,7 @@ public class ChatActivity extends AppCompatActivity {
                         rvChat.setLayoutManager(linearLayoutManager);
                         List<Message> messagesAdapterList = new ArrayList<>();
 
-                        MessageAdapter adapter = new MessageAdapter(messagesAdapterList, this, currentUser);
+                        MessageAdapter adapter = new MessageAdapter(messagesAdapterList, this, currentUser, chatId, rvChat);
                         rvChat.setItemAnimator(new DefaultItemAnimator());
                         rvChat.setAdapter(adapter);
 
@@ -144,16 +169,13 @@ public class ChatActivity extends AppCompatActivity {
                         ChildEventListener messagesChildEventListener = new ChildEventListener() {
                             @Override
                             public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
-
                                 Message newMessage = snapshot.getValue(Message.class);
                                 adapter.addMessage(newMessage);
-
                             }
 
                             @Override
                             public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
                                 Message changedMessage = snapshot.getValue(Message.class);
-                                changedMessage.setEdited(true);
                                 adapter.changeMessage(changedMessage);
                             }
 
@@ -211,7 +233,9 @@ public class ChatActivity extends AppCompatActivity {
                     chatId = ref.getKey();
                     chat.setChatId(chatId);
 
-                    databaseReference.child("chats").child(chatId).child("messages").push().setValue(message);
+                    databaseReference.child("chats").child(chatId).child("messages").push().setValue(message).addOnSuccessListener(unused -> {
+
+                    });
 
                     currentUser.addChat(chatId);
                     user.addChat(chatId);
@@ -228,12 +252,20 @@ public class ChatActivity extends AppCompatActivity {
         }else{
             chat.setLastMessage(message);
             databaseReference.child("chats").child(chatId).child("lastMessage").setValue(message);
-            databaseReference.child("chats").child(chatId).child("messages").push().setValue(message, (error1, ref1) -> {
-                if (error1 == null) {
-                    llSend.setAlpha(1f);
-                    llSend.setEnabled(true);
+
+            String key = databaseReference.child("chats").child(chatId).child("messages").push().getKey();
+            message.setId(key);
+            databaseReference.child("chats").child(chatId).child("unread").child(key).setValue(currentUserId, (error, ref) -> {
+                if(error == null) {
+                    databaseReference.child("chats").child(chatId).child("messages").child(key).setValue(message, (error1, ref1) -> {
+                        if (error1 == null) {
+                            llSend.setAlpha(1f);
+                            llSend.setEnabled(true);
+                        }
+                    });
                 }
             });
+
         }
     }
 }

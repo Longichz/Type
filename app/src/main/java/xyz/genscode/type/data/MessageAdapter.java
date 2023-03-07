@@ -14,30 +14,40 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+
 import java.text.SimpleDateFormat;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.logging.Handler;
 
 import xyz.genscode.type.R;
 import xyz.genscode.type.models.Message;
 import xyz.genscode.type.models.User;
 
 public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewClass> {
-
+    RecyclerView recyclerView;
     List<Message> messages;
     Context context;
     ViewClass viewClass;
     User user;
+    String chatId;
     private static final int THEME_DAY = 0;
     private static final int THEME_NIGHT = 1;
     private int theme;
 
-    public MessageAdapter(List<Message> messages, Context context, User user) {
+    public MessageAdapter(List<Message> messages, Context context, User user, String chatId, RecyclerView recyclerView) {
         this.messages = messages;
         this.context = context;
         this.user = user;
+        this.chatId = chatId;
+        this.recyclerView = recyclerView;
         Collections.reverse(messages);
     }
 
@@ -60,23 +70,57 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewClas
         return viewClass;
     }
 
-    @SuppressLint("ResourceAsColor")
+    @SuppressLint({"ResourceAsColor", "SetTextI18n"})
     @Override
     public void onBindViewHolder(@NonNull MessageAdapter.ViewClass holder, int position) {
         Message message = messages.get(position);
         String messageText = message.getText();
         String messageUserId = message.getUserId();
+        String messageId = message.getId() + "";
         long messageTimestamp = message.getTimestamp();
 
+        holder.tvMessage.setText(messageText.trim());
+
+
+        //Время сообщения
         Date date = new Date(messageTimestamp);
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("kk:mm", Locale.getDefault());
-        String formattedTime = simpleDateFormat.format(date);
+        String formattedTime = simpleDateFormat.format(date)+"";
 
-        holder.tvMessage.setText(messageText.trim());
-        holder.tvTimestamp.setText(formattedTime);
-        if(message.isEdited()) holder.tvTimestamp.setText(context.getResources().getString(R.string.message_edited) + formattedTime);
+        //Индикторы прочтения и редактирования
+        String edit = "";
+        String unread = "";
+        if(message.isEdited()) edit = context.getResources().getString(R.string.message_edited) + " ";
+        if(!message.isRead() && message.getUserId().equals(user.getId())) unread = " " + context.getResources().getString(R.string.message_unread);
+
+        //Отображаем
+        holder.tvTimestamp.setText(edit+formattedTime+unread);
 
         if(!messageUserId.equals(user.getId())){
+
+            if(!message.isRead()){
+                FirebaseDatabase database = FirebaseDatabase.getInstance();
+                DatabaseReference databaseReference = database.getReference();
+                databaseReference.child("chats")
+                        .child(chatId)
+                        .child("unread")
+                        .child(messageId)
+                        .setValue(null).addOnCompleteListener(task1 -> {
+                            if(task1.isSuccessful()) {
+                                message.setRead(true);
+                                System.out.println("Deleting: " + messageId);
+                                databaseReference.child("chats")
+                                        .child(chatId)
+                                        .child("messages")
+                                        .child(messageId)
+                                        .setValue(message).addOnCompleteListener(task -> {
+                                            if(task.isSuccessful()) System.out.println("Changed to read: " + messageId);
+                                        });
+                            }
+                        });
+
+            }
+
             holder.llRoot.setGravity(Gravity.START);
             if(theme == THEME_NIGHT) {
                 holder.tvMessage.setTextColor(context.getResources().getColor(R.color.grey_50));
@@ -100,26 +144,23 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.ViewClas
         Collections.reverse(messages);
         messages.add(message);
         Collections.reverse(messages);
-        notifyDataSetChanged();
+        notifyItemInserted(messages.indexOf(message));
+        recyclerView.scrollToPosition(0);
     }
     public void removeMessage(Message message){
         for (int i = 0; i < messages.size(); i++){
-            System.out.println(messages.get(i).getText());
-            if(message.getTimestamp() == messages.get(i).getTimestamp() &&
-            message.getText() == messages.get(i).getText()){
+            if(message.getId().equals(messages.get(i).getId())){
                 messages.remove(i);
-                notifyDataSetChanged();
+                notifyItemRemoved(i);
                 break;
             }
         }
     }
     public void changeMessage(Message message){
         for (int i = 0; i < messages.size(); i++){
-            System.out.println(messages.get(i).getText());
-            if(message.getTimestamp() == messages.get(i).getTimestamp() &&
-                    message.getUserId() == messages.get(i).getUserId()){
+            if(message.getId().equals(messages.get(i).getId())){
                 messages.set(i, message);
-                notifyDataSetChanged();
+                notifyItemChanged(i);
                 break;
             }
         }

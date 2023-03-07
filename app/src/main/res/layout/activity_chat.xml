@@ -44,7 +44,7 @@
     </LinearLayout>
 
     <LinearLayout
-        android:layout_marginTop="-30dp"
+        android:layout_marginTop="-50dp"
         android:fitsSystemWindows="true"
         android:layout_width="0dp"
         android:layout_height="0dp"
@@ -57,6 +57,7 @@
         android:weightSum="10">
 
         <androidx.recyclerview.widget.RecyclerView
+            android:layout_marginTop="20dp"
             android:id="@+id/rvChat"
             android:layout_width="match_parent"
             android:layout_height="0dp"
@@ -137,7 +138,7 @@
         app:layout_constraintTop_toTopOf="parent">
 
         <TextView
-            android:id="@+id/tvChatTopIndicator"
+            android:id="@+id/tvChatName"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginVertical="15dp"

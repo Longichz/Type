@@ -20,11 +20,14 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.GenericTypeIndicator;
 import com.google.firebase.database.ValueEventListener;
 
 import org.w3c.dom.Text;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 import xyz.genscode.type.ChatActivity;
 import xyz.genscode.type.R;
@@ -89,6 +92,16 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ChatLi
                                                 Drawable avatarDrawable = holder.llAvatarBackground.getBackground();
                                                 avatarDrawable.setTint(Color.parseColor(companionUser.getAvatarColor()));
                                                 holder.tvAvatarChar.setText(String.valueOf(chatName.toUpperCase().charAt(0)));
+
+                                                String companionUserId = companionUser.getId();
+                                                holder.button.setOnClickListener(view -> {
+                                                    Intent intent = new Intent(context, ChatActivity.class);
+                                                    intent.putExtra("chatId", chatId);
+                                                    intent.putExtra("currentUserId", user.getId());
+                                                    intent.putExtra("id", companionUserId);
+                                                    intent.putExtra("name", holder.tvName.getText().toString());
+                                                    context.startActivity(intent);
+                                                });
                                             }
 
                                             holder.tvName.setText(chatName);
@@ -100,6 +113,37 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ChatLi
                                 }
                             }
                         }
+
+                        GenericTypeIndicator<HashMap<String, String>> t = new GenericTypeIndicator<HashMap<String, String>>() {};
+                        databaseReference.child("chats").child(chatId).child("unread").addValueEventListener(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                                HashMap<String, String> unread = snapshot.getValue(t);
+                                if(unread != null) {
+                                    int i = 0;
+
+                                    for (Map.Entry<String, String> entry : unread.entrySet()) {
+                                        if(!entry.getValue().equals(user.getId())){
+                                            i++;
+                                        }
+                                    }
+
+                                   if(i > 0){
+                                       holder.tvUnread.setText(String.valueOf(i));
+                                       holder.llUnread.setVisibility(View.VISIBLE);
+                                   }else{
+                                       holder.llUnread.setVisibility(View.GONE);
+                                   }
+                                }else{
+                                    holder.llUnread.setVisibility(View.GONE);
+                                }
+                            }
+
+                            @Override
+                            public void onCancelled(@NonNull DatabaseError error) {
+                                //ERROR
+                            }
+                        });
 
                         //Последнее сообщение
                         databaseReference.child("chats").child(chatId).child("lastMessage").addValueEventListener(new ValueEventListener() {
@@ -118,15 +162,6 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ChatLi
                             public void onCancelled(@NonNull DatabaseError error) {
                                 //ERROR
                             }
-                        });
-
-                        holder.button.setOnClickListener(view -> {
-                            Intent intent = new Intent(context, ChatActivity.class);
-                            intent.putExtra("chatId", chatId);
-                            intent.putExtra("currentUserId", user.getId());
-                            intent.putExtra("id", companionUser.getId());
-                            intent.putExtra("name", chatName);
-                            context.startActivity(intent);
                         });
 
                     }
@@ -151,9 +186,9 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ChatLi
 
     public class ChatListView extends RecyclerView.ViewHolder {
 
-        TextView tvName, tvLastMessage;
+        TextView tvName, tvLastMessage, tvUnread;
         TextView tvAvatarChar;
-        View llAvatarBackground;
+        View llAvatarBackground, llUnread;
         View llRoot;
         Button button;
 
@@ -164,7 +199,9 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ChatLi
             tvName = view.findViewById(R.id.tvChatListUserName);
             tvLastMessage = view.findViewById(R.id.tvChatListLastMessage);
             tvAvatarChar = view.findViewById(R.id.tvChatListAvatarChar);
+            tvUnread = view.findViewById(R.id.tvChatListUnreadCount);
             llAvatarBackground = view.findViewById(R.id.llChatListAvatarBackground);
+            llUnread = view.findViewById(R.id.llChatListUnread);
             llRoot = view.findViewById(R.id.llChatListRoot);
 
         }

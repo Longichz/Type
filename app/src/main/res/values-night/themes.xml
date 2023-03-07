@@ -96,4 +96,7 @@
         <item name="android:textAlignment">viewStart</item>
         <item name="android:textSize">15dp</item>
     </style>
+    <style name="item_unread" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="android:background">@drawable/item_unread_night</item>
+    </style>
 </resources>
