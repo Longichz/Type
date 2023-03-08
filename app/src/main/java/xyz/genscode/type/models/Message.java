@@ -8,6 +8,7 @@ public class Message {
     private String imageUrl;
     private boolean edited = false;
     private boolean read = false;
+    private boolean isDate = false;
 
     public Message() {
     }
@@ -18,6 +19,14 @@ public class Message {
         this.timestamp = timestamp;
         this.text = text;
         this.imageUrl = imageUrl;
+    }
+
+    public boolean isDate() {
+        return isDate;
+    }
+
+    public void setDate(boolean date) {
+        isDate = date;
     }
 
     public boolean isRead() {
