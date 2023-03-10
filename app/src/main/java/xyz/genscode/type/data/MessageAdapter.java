@@ -48,6 +48,7 @@ public class MessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     private int theme;
 
     public MessageAdapter(List<Message> messages, Context context, User user, String chatId, RecyclerView recyclerView) {
+        messageDatePrevious = "";
         this.messages = messages;
         this.context = context;
         this.user = user;
@@ -68,6 +69,7 @@ public class MessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     @NonNull
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+
         int currentNightMode = context.getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
         switch (currentNightMode) {
             case Configuration.UI_MODE_NIGHT_NO:
@@ -192,6 +194,8 @@ public class MessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd.MM.yyyy", Locale.getDefault());
         String messageDate = simpleDateFormat.format(date);
 
+        System.out.println("Previus: "+messageDatePrevious);
+
 
         if(messageDate.equals(messageDatePrevious)){
             //Добавляем обычное сообщение под той же датой
@@ -203,7 +207,6 @@ public class MessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             notifyItemInserted(messages.indexOf(message));
 
             recyclerView.scrollToPosition(0);
-            messageDatePrevious = messageDate;
 
         }else{
             //Дата отличается, сообщение в другой день, добавляем дату и потом само сообщение
@@ -214,21 +217,35 @@ public class MessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
             Collections.reverse(messages);
             messages.add(dateMessage);
+            Collections.reverse(messages);
+            notifyItemInserted(messages.indexOf(dateMessage));
+
+            Collections.reverse(messages);
             messages.add(message);
             Collections.reverse(messages);
-
-            notifyItemRangeInserted(messages.size() - 2, 2);
+            notifyItemInserted(messages.indexOf(message));
 
             recyclerView.scrollToPosition(0);
-            messageDatePrevious = messageDate;
+
         }
 
+        messageDatePrevious = messageDate;
+
+        System.out.println("Now: "+messageDatePrevious);
     }
     public void removeMessage(Message message){
         for (int i = 0; i < messages.size(); i++){
             if(message.getId().equals(messages.get(i).getId())){
+                //Удаляем сообщение
                 messages.remove(i);
                 notifyItemRemoved(i);
+
+                //Если после удаления сообщения, видим дату, удаляем её
+                if(messages.get(0).isDate()){
+                    messages.remove(i);
+                    notifyItemRemoved(i);
+                    messageDatePrevious = "";
+                }
                 break;
             }
         }

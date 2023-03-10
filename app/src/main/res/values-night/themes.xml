@@ -99,4 +99,7 @@
     <style name="item_unread" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="android:background">@drawable/item_unread_night</item>
     </style>
+    <style name="popup" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="android:background">@drawable/popup_night</item>
+    </style>
 </resources>
