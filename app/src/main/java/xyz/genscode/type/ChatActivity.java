@@ -7,54 +7,60 @@ import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.animation.ObjectAnimator;
+import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.graphics.Rect;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
-import android.provider.ContactsContract;
 import android.transition.Fade;
+import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewTreeObserver;
-import android.view.WindowManager;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
-import org.w3c.dom.Text;
-
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Date;
 import java.util.List;
-import java.util.Map;
+import java.util.Locale;
 
+
+import jp.wasabeef.blurry.Blurry;
 import xyz.genscode.type.data.MessageAdapter;
+import xyz.genscode.type.interfaces.OnItemClickListener;
 import xyz.genscode.type.models.Chat;
 import xyz.genscode.type.models.Message;
-import xyz.genscode.type.models.MessageUnread;
 import xyz.genscode.type.models.User;
-import xyz.genscode.type.utils.AvatarColors;
+import xyz.genscode.type.utils.PopupMessage;
 
-public class ChatActivity extends AppCompatActivity {
-
+public class ChatActivity extends AppCompatActivity implements OnItemClickListener {
     FirebaseDatabase database;
     DatabaseReference databaseReference;
     Chat chat;
     String chatId; String currentUserId; String userId;
     User user; User currentUser;
     View llSend; EditText etMessage; RecyclerView rvChat;
-    View llLoading;
+    View llLoading;View blurredView;
+    Handler handler;
+
+    static PopupMessage popupMessage;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,7 +78,7 @@ public class ChatActivity extends AppCompatActivity {
         Animation enterAnimation = AnimationUtils.loadAnimation(this, R.anim.jump);
         rootView.startAnimation(enterAnimation);
 
-        Handler handler = new Handler();
+        handler = new Handler();
 
         Animation anim = new AlphaAnimation(0.5f, 1.0f); anim.setDuration(250); anim.setRepeatMode(Animation.REVERSE); anim.setRepeatCount(Animation.INFINITE);
         Animation anim2 = new AlphaAnimation(0.5f, 1.0f); anim2.setDuration(250); anim2.setRepeatMode(Animation.REVERSE); anim2.setRepeatCount(Animation.INFINITE);
@@ -142,6 +148,8 @@ public class ChatActivity extends AppCompatActivity {
             finish();
         });
 
+        createPopupMessage();
+
     }
 
     private void initializeChat(){
@@ -161,6 +169,108 @@ public class ChatActivity extends AppCompatActivity {
                         List<Message> messagesAdapterList = new ArrayList<>();
 
                         MessageAdapter adapter = new MessageAdapter(messagesAdapterList, this, currentUser, chatId, rvChat);
+                        adapter.setClickListener(new OnItemClickListener() {
+                            @Override
+                            public void onItemClick(int position, Message message, View view) {
+                                View llChatRoot = findViewById(R.id.llChatRoot);
+                                View llChat = findViewById(R.id.llChat);
+                                ImageView blurImageView = findViewById(R.id.blurImageView);
+
+                                InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+
+                                View view3 = getCurrentFocus();
+
+                                if (view3 != null) {
+                                    // Скрыть клавиатуру
+                                    imm.hideSoftInputFromWindow(view3.getWindowToken(), 0);
+                                }
+
+                                handler.postDelayed((Runnable) () -> {
+                                    view.setVisibility(View.INVISIBLE);
+                                    Blurry.with(getApplicationContext())
+                                            .radius(20)
+                                            .capture(llChatRoot)
+                                            .getAsync(bitmap -> {
+                                                blurImageView.setImageBitmap(bitmap);
+                                                blurImageView.setVisibility(View.VISIBLE);
+                                                llChat.animate().alpha(0).setDuration(250).start();
+                                                view.setVisibility(View.VISIBLE);
+                                                popupMessage.show();
+                                            });
+
+                                    //Определяем позицию сообщения
+                                    Rect rect = new Rect();
+                                    view.getGlobalVisibleRect(rect);
+                                    int absoluteY = rect.top;
+                                    long messageTimestamp = message.getTimestamp();
+
+                                    //Настраиваем копию выбранного сообщения
+                                    LinearLayout llPopupMessageRoot = findViewById(R.id.llPopupMessageRoot);
+                                    View llPopupMessage = findViewById(R.id.llPopupMessage);
+                                    TextView tvPopupMessage = findViewById(R.id.tvPopupMessage);
+                                    TextView tvPopupMessageTimestamp = findViewById(R.id.tvPopupMessageTimestamp);
+
+                                    Drawable messageDayDrawable = getResources().getDrawable(R.drawable.message_day);
+                                    Drawable messageNightDrawable = getResources().getDrawable(R.drawable.message_night);
+                                    Drawable messageMineDrawable = getResources().getDrawable(R.drawable.message_mine);
+
+                                    Date date = new Date(messageTimestamp);
+                                    SimpleDateFormat simpleDateFormat = new SimpleDateFormat("kk:mm", Locale.getDefault());
+                                    String formattedTime = simpleDateFormat.format(date)+"";
+                                    String edit = "";
+                                    String unread = "";
+                                    if(message.isEdited()) edit = getApplicationContext().getResources().getString(R.string.message_edited) + " ";
+                                    if(!message.isRead() && message.getUserId().equals(currentUser.getId())) unread = " " + getResources().getString(R.string.message_unread);
+
+                                    tvPopupMessageTimestamp.setText(edit+formattedTime+unread);
+                                    tvPopupMessage.setText(message.getText());
+
+                                    if(!message.getUserId().equals(currentUser.getId())){
+                                        llPopupMessageRoot.setGravity(Gravity.START);
+                                        if(adapter.theme == adapter.THEME_NIGHT) {
+                                            tvPopupMessage.setTextColor(getResources().getColor(R.color.grey_50));
+                                            tvPopupMessageTimestamp.setTextColor(getResources().getColor(R.color.grey_00));
+                                            llPopupMessage.setBackground(messageNightDrawable);
+                                        }else{
+                                            tvPopupMessage.setTextColor(getResources().getColor(R.color.grey_800));
+                                            tvPopupMessageTimestamp.setTextColor(getResources().getColor(R.color.grey_500));
+                                            llPopupMessage.setBackground(messageDayDrawable);
+                                        }
+                                    }else{
+                                        llPopupMessageRoot.setGravity(Gravity.END);
+                                        tvPopupMessage.setTextColor(getResources().getColor(R.color.white));
+                                        tvPopupMessageTimestamp.setTextColor(getResources().getColor(R.color.grey_200));
+                                        llPopupMessage.setBackground(messageMineDrawable);
+                                    }
+
+                                    llPopupMessageRoot.setY(absoluteY);
+
+                                }, 25);
+
+
+                                popupMessage.llPopupBackgroundDark.setOnClickListener(view1 -> {
+                                    popupMessage.hide();
+
+                                    blurImageView.setVisibility(View.INVISIBLE);
+                                    llChat.animate().alpha(1).setDuration(250).start();
+                                });
+
+                                popupMessage.btPopupEdit.setOnClickListener(view12 -> {
+                                    popupMessage.hide();
+
+                                    blurImageView.setVisibility(View.INVISIBLE);
+                                    llChat.animate().alpha(1).setDuration(250).start();
+                                });
+
+                                popupMessage.btPopupDelete.setOnClickListener(view12 -> {
+                                    popupMessage.hide();
+
+                                    blurImageView.setVisibility(View.INVISIBLE);
+                                    llChat.animate().alpha(1).setDuration(250).start();
+                                });
+                            }
+                        });
+
                         rvChat.setItemAnimator(new DefaultItemAnimator());
                         rvChat.setAdapter(adapter);
 
@@ -268,4 +378,44 @@ public class ChatActivity extends AppCompatActivity {
 
         }
     }
+
+    private void createPopupMessage(){
+        if(popupMessage == null){
+            System.out.println("PopupMessage: Now class is constructing...");
+            View llPopupInclude = findViewById(R.id.llPopupInclude);
+            View llPopupDark = findViewById(R.id.llPopupDark);
+            View llPopupBackground = findViewById(R.id.llPopupBackground);
+            View llPopupMessageEdit = findViewById(R.id.llPopupMessageEdit);
+            View llPopupMessageDelete = findViewById(R.id.llPopupMessageDelete);
+            Button btPopupMessageEdit = findViewById(R.id.btPopupMessageEdit);
+            Button btPopupMessageDelete = findViewById(R.id.btPopupMessageDelete);
+
+
+            popupMessage = new PopupMessage(llPopupInclude, llPopupDark, llPopupBackground, llPopupMessageEdit, llPopupMessageDelete,
+                    btPopupMessageEdit, btPopupMessageDelete);
+        }else{
+            System.out.println("PopupMessage: Now class is already constructed");
+            System.out.println("PopupMessage: Removing object...");
+            popupMessage = null;
+            System.gc();
+            createPopupMessage();
+        }
+    }
+
+    @Override
+    public void onBackPressed() {
+        if(popupMessage.isShowed){
+            View llChat = findViewById(R.id.llChat);
+            ImageView blurImageView = findViewById(R.id.blurImageView);
+
+            popupMessage.hide();
+
+            blurImageView.setVisibility(View.INVISIBLE);
+            llChat.animate().alpha(1).setDuration(250).start();
+        }
+        super.onBackPressed();
+    }
+
+    @Override
+    public void onItemClick(int position, Message message, View view) {}
 }

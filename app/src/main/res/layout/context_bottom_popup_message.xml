@@ -6,25 +6,84 @@
     android:layout_height="match_parent">
 
     <LinearLayout
+        android:id="@+id/llPopupDark"
+        android:clickable="true"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:orientation="horizontal"
+        android:focusable="true"
         android:background="@color/black10"/>
 
+    <LinearLayout
+        android:id="@+id/llPopupMessageRoot"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5dp"
+        android:gravity="end"
+        android:orientation="horizontal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <LinearLayout
+            android:id="@+id/llPopupMessage"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical|start"
+            android:layout_marginHorizontal="15dp"
+            android:background="@drawable/message_mine"
+            android:orientation="horizontal"
+            android:weightSum="10">
+
+            <TextView
+                android:id="@+id/tvPopupMessage"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginVertical="10dp"
+                android:layout_marginStart="10dp"
+                android:layout_marginEnd="5dp"
+                android:fontFamily="@font/fira_sans"
+                android:maxWidth="250dp"
+                android:textColor="@color/white"
+                android:textSize="15sp" />
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_marginEnd="10dp"
+                android:layout_marginBottom="7dp"
+                android:layout_weight="10"
+                android:gravity="bottom">
+
+                <TextView
+                    android:id="@+id/tvPopupMessageTimestamp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:alpha="0.5"
+                    android:text="10:00"
+                    android:textColor="@color/grey_200"
+                    android:textSize="13sp" />
+            </LinearLayout>
+        </LinearLayout>
+    </LinearLayout>
+
     <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/llPopupBackground"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:minHeight="70dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        android:paddingVertical="20dp"
-        android:paddingHorizontal="10dp"
+        android:paddingVertical="12dp"
+        android:paddingHorizontal="15dp"
         style="@style/popup">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/llPopupMessageEdit"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
@@ -47,7 +106,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="15dp"
                 android:text="@string/message_edit"
-                android:textSize="16sp"
+                android:textSize="14sp"
                 style="@style/text"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toEndOf="@+id/ivPopupMessageEdit"
@@ -58,9 +117,9 @@
                 style="@style/Widget.Material3.Button.TextButton"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:minHeight="40dp"
+                android:minHeight="50dp"
                 app:rippleColor="@color/grey_00"
-                app:cornerRadius="20dp"
+                app:cornerRadius="15dp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="@+id/ivPopupMessageEdit"
@@ -94,7 +153,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="15dp"
                 android:text="@string/message_remove"
-                android:textSize="16sp"
+                android:textSize="14sp"
                 android:textColor="@color/red"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toEndOf="@+id/ivPopupMessageDelete"
@@ -105,9 +164,9 @@
                 style="@style/Widget.Material3.Button.TextButton"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:minHeight="40dp"
+                android:minHeight="50dp"
                 app:rippleColor="@color/red_ripple"
-                app:cornerRadius="20dp"
+                app:cornerRadius="15dp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="@+id/ivPopupMessageDelete"

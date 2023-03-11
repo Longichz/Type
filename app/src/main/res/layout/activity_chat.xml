@@ -7,7 +7,9 @@
     tools:context=".ChatActivity"
     android:fitsSystemWindows="false"
     android:animateLayoutChanges="true"
+    android:id="@+id/llChatRoot"
     >
+
 
     <LinearLayout
         android:id="@+id/llChatLoading"
@@ -44,6 +46,7 @@
     </LinearLayout>
 
     <LinearLayout
+        android:id="@+id/llChat"
         android:layout_marginTop="-50dp"
         android:fitsSystemWindows="true"
         android:layout_width="0dp"
@@ -159,7 +162,7 @@
             android:layout_marginTop="2dp"
             android:layout_marginStart="6dp"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="@+id/tvChatTopIndicator"
+            app:layout_constraintStart_toStartOf="@+id/llTopBackground"
             app:layout_constraintTop_toTopOf="parent">
 
             <ImageView
@@ -192,5 +195,15 @@
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
+    <ImageView
+        android:visibility="invisible"
+        android:id="@+id/blurImageView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
+
+    <include
+        android:visibility="invisible"
+        android:id="@+id/llPopupInclude"
+        layout="@layout/context_bottom_popup_message" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

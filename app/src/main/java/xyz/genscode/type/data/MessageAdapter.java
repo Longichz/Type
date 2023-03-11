@@ -28,10 +28,12 @@ import java.util.Locale;
 import java.util.logging.Handler;
 
 import xyz.genscode.type.R;
+import xyz.genscode.type.interfaces.OnItemClickListener;
 import xyz.genscode.type.models.Message;
 import xyz.genscode.type.models.User;
 
 public class MessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+    OnItemClickListener clickListener;
     RecyclerView recyclerView;
     List<Message> messages;
     Context context;
@@ -40,12 +42,16 @@ public class MessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     User user;
     String chatId;
     static String messageDatePrevious;
-    private static final int THEME_DAY = 0;
-    private static final int THEME_NIGHT = 1;
+    public static final int THEME_DAY = 0;
+    public static final int THEME_NIGHT = 1;
     private static final int VIEW_MESSAGE = 0;
     private static final int VIEW_DATE = 1;
 
-    private int theme;
+    public int theme;
+
+    public void  setClickListener(OnItemClickListener clickListener){
+        this.clickListener = clickListener;
+    }
 
     public MessageAdapter(List<Message> messages, Context context, User user, String chatId, RecyclerView recyclerView) {
         messageDatePrevious = "";
@@ -185,6 +191,12 @@ public class MessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             messageHolder.llMessage.setBackground(messageHolder.messageMineDrawable);
         }
 
+        messageHolder.llMessage.setOnClickListener(v -> {
+            if (clickListener != null) {
+                clickListener.onItemClick(position, message, messageHolder.llMessage);
+            }
+        });
+
     }
 
     public void addMessage(Message message){
@@ -206,8 +218,6 @@ public class MessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
             notifyItemInserted(messages.indexOf(message));
 
-            recyclerView.scrollToPosition(0);
-
         }else{
             //Дата отличается, сообщение в другой день, добавляем дату и потом само сообщение
 
@@ -225,9 +235,9 @@ public class MessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             Collections.reverse(messages);
             notifyItemInserted(messages.indexOf(message));
 
-            recyclerView.scrollToPosition(0);
-
         }
+
+        recyclerView.smoothScrollToPosition(0);
 
         messageDatePrevious = messageDate;
 
