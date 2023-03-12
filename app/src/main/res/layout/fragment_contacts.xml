@@ -51,7 +51,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/llEditChange"
-        android:background="@drawable/item_settings_both_day"
+        style="@style/settings_item_both"
         >
         <LinearLayout
             style="@style/item"

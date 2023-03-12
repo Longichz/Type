@@ -31,7 +31,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical|start"
             android:layout_marginHorizontal="15dp"
-            android:background="@drawable/message_mine"
+            android:background="@drawable/message_mine_day"
             android:orientation="horizontal"
             android:weightSum="10">
 

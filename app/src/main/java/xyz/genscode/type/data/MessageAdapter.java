@@ -16,9 +16,6 @@ import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
@@ -28,7 +25,6 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
-import java.util.logging.Handler;
 
 import xyz.genscode.type.R;
 import xyz.genscode.type.interfaces.OnItemClickListener;
@@ -181,21 +177,34 @@ public class MessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
             }
 
+            //Сообщение собеседника
             messageHolder.llRoot.setGravity(Gravity.START);
             if(theme == THEME_NIGHT) {
+                //В ночную тему
                 messageHolder.tvMessage.setTextColor(context.getResources().getColor(R.color.grey_50));
-                messageHolder.tvTimestamp.setTextColor(context.getResources().getColor(R.color.grey_00));
+                messageHolder.tvTimestamp.setTextColor(context.getResources().getColor(R.color.grey_500));
                 messageHolder.llMessage.setBackground(messageHolder.messageNightDrawable);
             }else{
+                //В светлую тему
                 messageHolder.tvMessage.setTextColor(context.getResources().getColor(R.color.grey_800));
                 messageHolder.tvTimestamp.setTextColor(context.getResources().getColor(R.color.grey_500));
                 messageHolder.llMessage.setBackground(messageHolder.messageDayDrawable);
             }
         }else{
+            //Свои сообщения
             messageHolder.llRoot.setGravity(Gravity.END);
-            messageHolder.tvMessage.setTextColor(context.getResources().getColor(R.color.white));
-            messageHolder.tvTimestamp.setTextColor(context.getResources().getColor(R.color.grey_200));
-            messageHolder.llMessage.setBackground(messageHolder.messageMineDrawable);
+            if(theme == THEME_NIGHT) {
+                //В ночную тему
+                messageHolder.tvMessage.setTextColor(context.getResources().getColor(R.color.grey_50));
+                messageHolder.tvTimestamp.setTextColor(context.getResources().getColor(R.color.grey_200));
+                messageHolder.llMessage.setBackground(messageHolder.messageMineNightDrawable);
+            }else{
+                //В светлую тему
+                messageHolder.tvMessage.setTextColor(context.getResources().getColor(R.color.white));
+                messageHolder.tvTimestamp.setTextColor(context.getResources().getColor(R.color.grey_200));
+                messageHolder.llMessage.setBackground(messageHolder.messageMineDayDrawable);
+            }
+
         }
 
         messageHolder.llMessage.setOnTouchListener((View view12, MotionEvent motionEvent) -> {
@@ -254,7 +263,7 @@ public class MessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
         }
 
-        recyclerView.smoothScrollToPosition(0);
+        recyclerView.scrollToPosition(0);
 
         messageDatePrevious = messageDate;
     }
@@ -301,7 +310,7 @@ public class MessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         TextView tvMessage;
         TextView tvTimestamp;
         LinearLayout llRoot;
-        Drawable messageDayDrawable, messageNightDrawable, messageMineDrawable;
+        Drawable messageDayDrawable, messageNightDrawable, messageMineDayDrawable, messageMineNightDrawable;
 
 
         public ViewClass(@NonNull View itemView) {
@@ -312,7 +321,8 @@ public class MessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             tvTimestamp = itemView.findViewById(R.id.tvTimestamp);
             messageDayDrawable = ContextCompat.getDrawable(itemView.getContext(), R.drawable.message_day);
             messageNightDrawable = ContextCompat.getDrawable(itemView.getContext(), R.drawable.message_night);
-            messageMineDrawable = ContextCompat.getDrawable(itemView.getContext(), R.drawable.message_mine);
+            messageMineDayDrawable = ContextCompat.getDrawable(itemView.getContext(), R.drawable.message_mine_day);
+            messageMineNightDrawable = ContextCompat.getDrawable(itemView.getContext(), R.drawable.message_mine_night);
         }
     }
 

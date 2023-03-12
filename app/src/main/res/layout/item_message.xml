@@ -15,7 +15,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_vertical|start"
-        android:background="@drawable/message_mine"
+        android:background="@drawable/message_mine_day"
         android:orientation="horizontal"
         android:weightSum="10"
         >

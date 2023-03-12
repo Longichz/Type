@@ -11,19 +11,14 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.Color;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
-import android.transition.Fade;
 import android.view.Gravity;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
@@ -67,6 +62,12 @@ public class ChatActivity extends AppCompatActivity{
 
     static boolean isEditMessage = false, isLastMessage = false;
     static Message editMessage;
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        cancelEditMessage();
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -236,7 +237,8 @@ public class ChatActivity extends AppCompatActivity{
 
                                     Drawable messageDayDrawable = ContextCompat.getDrawable(getApplicationContext(), R.drawable.message_day);
                                     Drawable messageNightDrawable = ContextCompat.getDrawable(getApplicationContext(), R.drawable.message_night);
-                                    Drawable messageMineDrawable = ContextCompat.getDrawable(getApplicationContext(), R.drawable.message_mine);
+                                    Drawable messageMineDayDrawable = ContextCompat.getDrawable(getApplicationContext(), R.drawable.message_mine_day);
+                                    Drawable messageMineNightDrawable = ContextCompat.getDrawable(getApplicationContext(), R.drawable.message_mine_night);
 
                                     Date date = new Date(messageTimestamp);
                                     SimpleDateFormat simpleDateFormat = new SimpleDateFormat("kk:mm", Locale.getDefault());
@@ -253,7 +255,7 @@ public class ChatActivity extends AppCompatActivity{
                                         llPopupMessageRoot.setGravity(Gravity.START);
                                         if(adapter.theme == MessageAdapter.THEME_NIGHT) {
                                             tvPopupMessage.setTextColor(getResources().getColor(R.color.grey_50));
-                                            tvPopupMessageTimestamp.setTextColor(getResources().getColor(R.color.grey_00));
+                                            tvPopupMessageTimestamp.setTextColor(getResources().getColor(R.color.grey_500));
                                             llPopupMessage.setBackground(messageNightDrawable);
                                         }else{
                                             tvPopupMessage.setTextColor(getResources().getColor(R.color.grey_800));
@@ -262,9 +264,16 @@ public class ChatActivity extends AppCompatActivity{
                                         }
                                     }else{
                                         llPopupMessageRoot.setGravity(Gravity.END);
-                                        tvPopupMessage.setTextColor(getResources().getColor(R.color.white));
-                                        tvPopupMessageTimestamp.setTextColor(getResources().getColor(R.color.grey_200));
-                                        llPopupMessage.setBackground(messageMineDrawable);
+                                        if(adapter.theme == MessageAdapter.THEME_NIGHT) {
+                                            tvPopupMessage.setTextColor(getResources().getColor(R.color.grey_50));
+                                            tvPopupMessageTimestamp.setTextColor(getResources().getColor(R.color.grey_200));
+                                            llPopupMessage.setBackground(messageMineNightDrawable);
+                                        }else{
+                                            tvPopupMessage.setTextColor(getResources().getColor(R.color.white));
+                                            tvPopupMessageTimestamp.setTextColor(getResources().getColor(R.color.grey_200));
+                                            llPopupMessage.setBackground(messageMineDayDrawable);
+                                        }
+
                                     }
 
                                     //Устанавливаем копию сообщения по абсолютному значению Y, туда же где оно было в адаптере.
