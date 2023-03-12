@@ -18,6 +18,7 @@ public class PopupMessage extends AppCompatActivity {
     public Button btPopupEdit, btPopupDelete;
     Handler handler;
     public boolean isShowed = false;
+    public boolean isEditShowed = true;
 
     public PopupMessage(View llPopupInclude, View llPopupBackgroundDark, View llPopupBackground, View llPopupMessageEdit, View llPopupMessageDelete,
                         Button btPopupEdit, Button btPopupDelete){
@@ -44,8 +45,10 @@ public class PopupMessage extends AppCompatActivity {
         isShowed = true;
 
         if(!isEditAvailable){
+            isEditShowed = false;
             llPopupMessageEdit.setVisibility(View.GONE);
         }else{
+            isEditShowed = true;
             llPopupMessageEdit.setVisibility(View.VISIBLE);
         }
 
@@ -60,6 +63,7 @@ public class PopupMessage extends AppCompatActivity {
         Animation slideDownAnim = AnimationUtils.loadAnimation(llPopupBackground.getContext(), R.anim.slide_down);
         llPopupBackground.startAnimation(slideDownAnim);
         llPopupInclude.setVisibility(View.INVISIBLE);
+
     }
 
 }

@@ -6,12 +6,14 @@ import android.content.res.Configuration;
 import android.graphics.drawable.Drawable;
 import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -21,6 +23,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -48,6 +51,11 @@ public class MessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     private static final int VIEW_DATE = 1;
 
     public int theme;
+
+    public boolean isSelectMode = false;
+
+    ArrayList<Message> selectObjects = new ArrayList<Message>();
+    ArrayList<View> selectObjectsView = new ArrayList<View>();
 
     public void  setClickListener(OnItemClickListener clickListener){
         this.clickListener = clickListener;
@@ -100,7 +108,7 @@ public class MessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
     }
 
-    @SuppressLint({"ResourceAsColor", "SetTextI18n"})
+    @SuppressLint({"ResourceAsColor", "SetTextI18n", "ClickableViewAccessibility"})
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
 
@@ -161,7 +169,6 @@ public class MessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                         .setValue(null).addOnCompleteListener(task1 -> {
                             if(task1.isSuccessful()) {
                                 message.setRead(true);
-                                System.out.println("Deleting: " + messageId);
                                 databaseReference.child("chats")
                                         .child(chatId)
                                         .child("messages")
@@ -191,6 +198,19 @@ public class MessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             messageHolder.llMessage.setBackground(messageHolder.messageMineDrawable);
         }
 
+        messageHolder.llMessage.setOnTouchListener((View view12, MotionEvent motionEvent) -> {
+            switch (motionEvent.getAction()) {
+                case MotionEvent.ACTION_DOWN:
+                    view12.animate().alpha(0.8f).scaleX(0.99f).scaleY(0.99f).setDuration(35);
+                    break;
+                case MotionEvent.ACTION_UP:
+                case MotionEvent.ACTION_CANCEL:
+                    view12.animate().alpha(1).scaleX(1).scaleY(1).setDuration(35);
+                    break;
+            }
+            return false;
+        });
+
         messageHolder.llMessage.setOnClickListener(v -> {
             if (clickListener != null) {
                 clickListener.onItemClick(position, message, messageHolder.llMessage);
@@ -200,16 +220,13 @@ public class MessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     }
 
     public void addMessage(Message message){
-        //Совпадает ли дата сообщения с предыдущим
+        //Подготавливаем timestamp
         long messageTimestamp = message.getTimestamp();
         Date date = new Date(messageTimestamp);
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd.MM.yyyy", Locale.getDefault());
         String messageDate = simpleDateFormat.format(date);
 
-        System.out.println("Previus: "+messageDatePrevious);
-
-
-        if(messageDate.equals(messageDatePrevious)){
+        if(messageDate.equals(messageDatePrevious)){ //Совпадает ли дата сообщения с предыдущим
             //Добавляем обычное сообщение под той же датой
 
             Collections.reverse(messages);
@@ -240,8 +257,6 @@ public class MessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         recyclerView.smoothScrollToPosition(0);
 
         messageDatePrevious = messageDate;
-
-        System.out.println("Now: "+messageDatePrevious);
     }
     public void removeMessage(Message message){
         for (int i = 0; i < messages.size(); i++){
@@ -250,16 +265,22 @@ public class MessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                 messages.remove(i);
                 notifyItemRemoved(i);
 
-                //Если после удаления сообщения, видим дату, удаляем её
-                if(messages.get(0).isDate()){
+                //Если удаленное сообщение было единственным за день, удаляем дату
+                if(i != 0 &&
+                        (messages.get(i).isDate() && messages.get(i-1).isDate())){
                     messages.remove(i);
                     notifyItemRemoved(i);
+                }
+                if (messages.get(0).isDate()) {
+                    messages.remove(0);
+                    notifyItemRemoved(0);
                     messageDatePrevious = "";
                 }
                 break;
             }
         }
     }
+
     public void changeMessage(Message message){
         for (int i = 0; i < messages.size(); i++){
             if(message.getId().equals(messages.get(i).getId())){
@@ -289,9 +310,9 @@ public class MessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             llMessage = itemView.findViewById(R.id.llMessage);
             tvMessage = itemView.findViewById(R.id.tvMessage);
             tvTimestamp = itemView.findViewById(R.id.tvTimestamp);
-            messageDayDrawable = itemView.getResources().getDrawable(R.drawable.message_day);
-            messageNightDrawable = itemView.getResources().getDrawable(R.drawable.message_night);
-            messageMineDrawable = itemView.getResources().getDrawable(R.drawable.message_mine);
+            messageDayDrawable = ContextCompat.getDrawable(itemView.getContext(), R.drawable.message_day);
+            messageNightDrawable = ContextCompat.getDrawable(itemView.getContext(), R.drawable.message_night);
+            messageMineDrawable = ContextCompat.getDrawable(itemView.getContext(), R.drawable.message_mine);
         }
     }
 

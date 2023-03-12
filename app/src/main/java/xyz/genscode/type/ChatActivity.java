@@ -3,10 +3,12 @@ package xyz.genscode.type;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -50,33 +52,26 @@ import xyz.genscode.type.models.Message;
 import xyz.genscode.type.models.User;
 import xyz.genscode.type.utils.PopupMessage;
 
-public class ChatActivity extends AppCompatActivity implements OnItemClickListener {
+public class ChatActivity extends AppCompatActivity{
     FirebaseDatabase database;
     DatabaseReference databaseReference;
     Chat chat;
     String chatId; String currentUserId; String userId;
     User user; User currentUser;
-    View llSend; EditText etMessage; RecyclerView rvChat;
-    View llLoading;View blurredView;
+    View llCancelEdit, llBack, llSend; EditText etMessage; RecyclerView rvChat;
+    View llLoading; View blurredView; TextView tvName;
     Handler handler;
+    String name;
 
     static PopupMessage popupMessage;
+
+    static boolean isEditMessage = false, isLastMessage = false;
+    static Message editMessage;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
-
-        overridePendingTransition(0, 0);
-
-        getWindow().setEnterTransition(new Fade());
-        getWindow().setExitTransition(new Fade());
-        getWindow().setReenterTransition(new Fade());
-        getWindow().setReturnTransition(new Fade());
-
-        ViewGroup rootView = findViewById(android.R.id.content);
-        Animation enterAnimation = AnimationUtils.loadAnimation(this, R.anim.jump);
-        rootView.startAnimation(enterAnimation);
 
         handler = new Handler();
 
@@ -92,9 +87,10 @@ public class ChatActivity extends AppCompatActivity implements OnItemClickListen
         database = FirebaseDatabase.getInstance();
         databaseReference = database.getReference();
 
-        TextView tvName = findViewById(R.id.tvChatName); tvName.setEnabled(false);
-        View llBack = findViewById(R.id.llChatBack);
+        tvName = findViewById(R.id.tvChatName); tvName.setEnabled(false);
+        llBack = findViewById(R.id.llChatBack);
         llSend = findViewById(R.id.llChatSend);
+        llCancelEdit = findViewById(R.id.llChatCancelEdit);
         etMessage = findViewById(R.id.etChatMessage);
         rvChat = findViewById(R.id.rvChat);
 
@@ -137,7 +133,8 @@ public class ChatActivity extends AppCompatActivity implements OnItemClickListen
         });
 
         if(intent.hasExtra("name")){
-            tvName.setText(intent.getStringExtra("name"));
+            name = intent.getStringExtra("name");
+            tvName.setText(name);
         }
 
         llSend.setOnClickListener(view -> {
@@ -146,6 +143,10 @@ public class ChatActivity extends AppCompatActivity implements OnItemClickListen
 
         llBack.setOnClickListener(view -> {
             finish();
+        });
+
+        llCancelEdit.setOnClickListener(view -> {
+            cancelEditMessage();
         });
 
         createPopupMessage();
@@ -168,51 +169,74 @@ public class ChatActivity extends AppCompatActivity implements OnItemClickListen
                         rvChat.setLayoutManager(linearLayoutManager);
                         List<Message> messagesAdapterList = new ArrayList<>();
 
+                        //Определяем высоту popupHeight для клика по сообщению
+                        View llPopupDark = findViewById(R.id.llPopupDark);
+                        int editButtonPopupHeight = findViewById(R.id.btPopupMessageEdit).getHeight();
+                        int popupHeightWithEdit = llPopupDark.getHeight()-popupMessage.llPopupBackground.getHeight(); //нужно для вычисления высоты меню с кнопкой edit
+                        int popupHeightWithoutEdit = llPopupDark.getHeight()-(popupMessage.llPopupBackground.getHeight()-editButtonPopupHeight); //нужно для вычисления высоты меню
+                                                                                                                                                // без кнопки edit
                         MessageAdapter adapter = new MessageAdapter(messagesAdapterList, this, currentUser, chatId, rvChat);
                         adapter.setClickListener(new OnItemClickListener() {
+                            @SuppressLint("SetTextI18n")
                             @Override
                             public void onItemClick(int position, Message message, View view) {
                                 View llChatRoot = findViewById(R.id.llChatRoot);
                                 View llChat = findViewById(R.id.llChat);
                                 ImageView blurImageView = findViewById(R.id.blurImageView);
 
+                                //Скрываем клаву
                                 InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-
-                                View view3 = getCurrentFocus();
-
-                                if (view3 != null) {
-                                    // Скрыть клавиатуру
-                                    imm.hideSoftInputFromWindow(view3.getWindowToken(), 0);
+                                View root = getCurrentFocus();
+                                if (root != null) {
+                                    imm.hideSoftInputFromWindow(root.getWindowToken(), 0);
                                 }
 
+                                rvChat.setEnabled(false); //Защищаемся от клика на два сообщения
+
+                                //Блюр всего
                                 handler.postDelayed((Runnable) () -> {
                                     view.setVisibility(View.INVISIBLE);
+
                                     Blurry.with(getApplicationContext())
-                                            .radius(20)
+                                            .radius(10)
+                                            .sampling(5)
                                             .capture(llChatRoot)
                                             .getAsync(bitmap -> {
                                                 blurImageView.setImageBitmap(bitmap);
                                                 blurImageView.setVisibility(View.VISIBLE);
                                                 llChat.animate().alpha(0).setDuration(250).start();
                                                 view.setVisibility(View.VISIBLE);
-                                                popupMessage.show();
+
+                                                rvChat.setEnabled(true); //Защищаемся от клика на два сообщения
                                             });
+
+                                    //Показываем меню
+                                    int popupHeight = 0;
+                                    if(message.getUserId().equals(currentUser.getId())){ //Доступно ли редактирование
+                                        popupHeight = popupHeightWithEdit;
+                                        popupMessage.show();
+                                    }else{
+                                        popupHeight = popupHeightWithoutEdit;
+                                        popupMessage.show(false);
+                                    }
 
                                     //Определяем позицию сообщения
                                     Rect rect = new Rect();
                                     view.getGlobalVisibleRect(rect);
-                                    int absoluteY = rect.top;
+                                    int absoluteYTop = rect.top;
+                                    int absoluteYBottom = absoluteYTop+view.getHeight();
+
+                                    //Создаем копию сообщения
                                     long messageTimestamp = message.getTimestamp();
 
-                                    //Настраиваем копию выбранного сообщения
                                     LinearLayout llPopupMessageRoot = findViewById(R.id.llPopupMessageRoot);
                                     View llPopupMessage = findViewById(R.id.llPopupMessage);
                                     TextView tvPopupMessage = findViewById(R.id.tvPopupMessage);
                                     TextView tvPopupMessageTimestamp = findViewById(R.id.tvPopupMessageTimestamp);
 
-                                    Drawable messageDayDrawable = getResources().getDrawable(R.drawable.message_day);
-                                    Drawable messageNightDrawable = getResources().getDrawable(R.drawable.message_night);
-                                    Drawable messageMineDrawable = getResources().getDrawable(R.drawable.message_mine);
+                                    Drawable messageDayDrawable = ContextCompat.getDrawable(getApplicationContext(), R.drawable.message_day);
+                                    Drawable messageNightDrawable = ContextCompat.getDrawable(getApplicationContext(), R.drawable.message_night);
+                                    Drawable messageMineDrawable = ContextCompat.getDrawable(getApplicationContext(), R.drawable.message_mine);
 
                                     Date date = new Date(messageTimestamp);
                                     SimpleDateFormat simpleDateFormat = new SimpleDateFormat("kk:mm", Locale.getDefault());
@@ -227,7 +251,7 @@ public class ChatActivity extends AppCompatActivity implements OnItemClickListen
 
                                     if(!message.getUserId().equals(currentUser.getId())){
                                         llPopupMessageRoot.setGravity(Gravity.START);
-                                        if(adapter.theme == adapter.THEME_NIGHT) {
+                                        if(adapter.theme == MessageAdapter.THEME_NIGHT) {
                                             tvPopupMessage.setTextColor(getResources().getColor(R.color.grey_50));
                                             tvPopupMessageTimestamp.setTextColor(getResources().getColor(R.color.grey_00));
                                             llPopupMessage.setBackground(messageNightDrawable);
@@ -243,31 +267,41 @@ public class ChatActivity extends AppCompatActivity implements OnItemClickListen
                                         llPopupMessage.setBackground(messageMineDrawable);
                                     }
 
-                                    llPopupMessageRoot.setY(absoluteY);
+                                    //Устанавливаем копию сообщения по абсолютному значению Y, туда же где оно было в адаптере.
+                                    llPopupMessageRoot.setAlpha(0); llPopupMessageRoot.animate().alpha(1).setDuration(25).start();
+                                    llPopupMessageRoot.setY(absoluteYTop);
+
+                                    //Если меню перекрывает сообщение, поднимаем его вверх
+                                    if(absoluteYBottom+50 > popupHeight) llPopupMessageRoot.animate().y(absoluteYTop-(absoluteYBottom-popupHeight+50)).setDuration(250).start();
+
+                                    //Задаем код кнопкам в выезжающем меню
+                                    popupMessage.llPopupBackgroundDark.setOnClickListener(view1 -> { //Скрытие
+                                        popupMessage.hide();
+                                        llPopupMessageRoot.animate().y(absoluteYTop).setDuration(250).start();
+                                        blurImageView.setVisibility(View.INVISIBLE);
+                                        llChat.animate().alpha(1).setDuration(250).start();
+                                    });
+
+                                    popupMessage.btPopupEdit.setOnClickListener(view12 -> { //Редактирование
+                                        popupMessage.hide();
+                                        llPopupMessageRoot.animate().y(absoluteYTop).setDuration(250).start();
+                                        blurImageView.setVisibility(View.INVISIBLE);
+                                        llChat.animate().alpha(1).setDuration(250).start();
+
+                                        editMessage(message, position);
+                                    });
+
+                                    popupMessage.btPopupDelete.setOnClickListener(view12 -> { //Удаление
+                                        popupMessage.hide();
+                                        llPopupMessageRoot.animate().y(absoluteYTop).setDuration(250).start();
+                                        blurImageView.setVisibility(View.INVISIBLE);
+                                        llChat.animate().alpha(1).setDuration(250).start();
+
+                                        deleteMessage(message);
+                                    });
 
                                 }, 25);
 
-
-                                popupMessage.llPopupBackgroundDark.setOnClickListener(view1 -> {
-                                    popupMessage.hide();
-
-                                    blurImageView.setVisibility(View.INVISIBLE);
-                                    llChat.animate().alpha(1).setDuration(250).start();
-                                });
-
-                                popupMessage.btPopupEdit.setOnClickListener(view12 -> {
-                                    popupMessage.hide();
-
-                                    blurImageView.setVisibility(View.INVISIBLE);
-                                    llChat.animate().alpha(1).setDuration(250).start();
-                                });
-
-                                popupMessage.btPopupDelete.setOnClickListener(view12 -> {
-                                    popupMessage.hide();
-
-                                    blurImageView.setVisibility(View.INVISIBLE);
-                                    llChat.animate().alpha(1).setDuration(250).start();
-                                });
                             }
                         });
 
@@ -276,6 +310,7 @@ public class ChatActivity extends AppCompatActivity implements OnItemClickListen
 
                         llLoading.setVisibility(View.INVISIBLE);
 
+                        //Слушатель чата
                         ChildEventListener messagesChildEventListener = new ChildEventListener() {
                             @Override
                             public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
@@ -320,6 +355,16 @@ public class ChatActivity extends AppCompatActivity implements OnItemClickListen
     }
 
     private void sendMessage(){
+        if(etMessage.length() == 0){ //не отправляем невалидные сообщения
+            return;
+        }
+        if(isEditMessage){ //определяем редактируем ли мы сейчас сообщение
+            editMessage(etMessage.getText().toString().trim());
+            etMessage.setText("");
+            return;
+        }
+
+        //Отправляем сообщение
         Message message = new Message();
         message.setUserId(currentUserId);
         message.setText(etMessage.getText().toString().trim());
@@ -329,7 +374,8 @@ public class ChatActivity extends AppCompatActivity implements OnItemClickListen
         llSend.setAlpha(0.5f);
         llSend.setEnabled(false);
 
-        if(chat == null){
+        if(chat == null){ //Чата еще не существует?
+            //Создаем чат
             ArrayList<String> users = new ArrayList<>();
             users.add(currentUserId);
             users.add(userId);
@@ -343,8 +389,21 @@ public class ChatActivity extends AppCompatActivity implements OnItemClickListen
                     chatId = ref.getKey();
                     chat.setChatId(chatId);
 
-                    databaseReference.child("chats").child(chatId).child("messages").push().setValue(message).addOnSuccessListener(unused -> {
+                    //Создаем id для сообщения
+                    String key = databaseReference.child("chats").child(chatId).child("messages").push().getKey();
+                    message.setId(key);
 
+                    databaseReference.child("chats").child(chatId).child("lastMessage").setValue(message); //Устанавливаем последнее сообщение
+
+                    databaseReference.child("chats").child(chatId).child("unread").child(key).setValue(currentUserId, (error2, ref2) -> { //Добавляем в непрочитанные
+                        if(error2 == null) {
+                            databaseReference.child("chats").child(chatId).child("messages").child(key).setValue(message, (error1, ref1) -> { //Добавляем в чат
+                                if (error1 == null) {
+                                    llSend.setAlpha(1f);
+                                    llSend.setEnabled(true);
+                                }
+                            });
+                        }
                     });
 
                     currentUser.addChat(chatId);
@@ -360,8 +419,9 @@ public class ChatActivity extends AppCompatActivity implements OnItemClickListen
                 }
             });
         }else{
+            //Отправляем сообщение
             chat.setLastMessage(message);
-            databaseReference.child("chats").child(chatId).child("lastMessage").setValue(message);
+            databaseReference.child("chats").child(chatId).child("lastMessage").setValue(message); //Устанавливаем последнее сообщение
 
             String key = databaseReference.child("chats").child(chatId).child("messages").push().getKey();
             message.setId(key);
@@ -379,7 +439,66 @@ public class ChatActivity extends AppCompatActivity implements OnItemClickListen
         }
     }
 
-    private void createPopupMessage(){
+    private void deleteMessage(Message message){
+        if(message.isRead()) {
+            databaseReference.child("chats").child(chatId).child("messages").child(message.getId()).setValue(null); //Удаляем сообщение
+        }else{
+            databaseReference.child("chats").child(chatId).child("unread").child(message.getId()).setValue(null); //Удаляем непрочитанное сообщение
+            databaseReference.child("chats").child(chatId).child("messages").child(message.getId()).setValue(null);
+        }
+    }
+
+    private void editMessage(Message message, int position){ //Активирование режима редактирования сообщения
+        isLastMessage = position == 0; //Это последнее сообщение?
+
+        isEditMessage = true;
+        editMessage = message;
+        etMessage.setText(message.getText());
+
+        llBack.setVisibility(View.INVISIBLE);
+        llCancelEdit.setVisibility(View.VISIBLE);
+        tvName.setText(getResources().getString(R.string.message_edit));
+
+        ImageView ivSend = findViewById(R.id.ivChatSend);
+        ivSend.setImageDrawable(ContextCompat.getDrawable(getApplicationContext(), R.drawable.ic_round_apply_24));
+
+        etMessage.requestFocus();
+        etMessage.setSelection(etMessage.length());
+        InputMethodManager imm = (InputMethodManager)
+                getApplicationContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.showSoftInput(etMessage, InputMethodManager.SHOW_IMPLICIT);
+
+    }
+
+    private void editMessage(String newText){ //Редактируем сообщение
+        isEditMessage = false;
+        if(!editMessage.getText().equals(newText)){
+            editMessage.setText(newText);
+            editMessage.setEdited(true);
+
+            databaseReference.child("chats").child(chatId).child("messages").child(editMessage.getId()).setValue(editMessage);
+
+            if(isLastMessage) databaseReference.child("chats").child(chatId).child("lastMessage").setValue(editMessage);
+        }
+        cancelEditMessage();
+    }
+
+    private void cancelEditMessage(){ //Деактивация режима редактирвания сообщения
+        isEditMessage = false;
+        etMessage.setText("");
+
+        llBack.setVisibility(View.VISIBLE);
+        llCancelEdit.setVisibility(View.INVISIBLE);
+        tvName.setText(name);
+
+        ImageView ivSend = findViewById(R.id.ivChatSend);
+        ivSend.setImageDrawable(ContextCompat.getDrawable(getApplicationContext(), R.drawable.ic_round_send));
+
+        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE); //скрываем клавиатуру
+        imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
+    }
+
+    private void createPopupMessage(){ //Создаем popup
         if(popupMessage == null){
             System.out.println("PopupMessage: Now class is constructing...");
             View llPopupInclude = findViewById(R.id.llPopupInclude);
@@ -404,7 +523,7 @@ public class ChatActivity extends AppCompatActivity implements OnItemClickListen
 
     @Override
     public void onBackPressed() {
-        if(popupMessage.isShowed){
+        if(popupMessage.isShowed){ //Перед выходом из активити скрываем попуп
             View llChat = findViewById(R.id.llChat);
             ImageView blurImageView = findViewById(R.id.blurImageView);
 
@@ -412,10 +531,15 @@ public class ChatActivity extends AppCompatActivity implements OnItemClickListen
 
             blurImageView.setVisibility(View.INVISIBLE);
             llChat.animate().alpha(1).setDuration(250).start();
+            return;
         }
+
+        if(isEditMessage){ //Перед выходом из активити деактивируем редактирование сообщения
+            cancelEditMessage();
+            return;
+        }
+
         super.onBackPressed();
     }
 
-    @Override
-    public void onItemClick(int position, Message message, View view) {}
 }

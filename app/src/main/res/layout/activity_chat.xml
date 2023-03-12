@@ -119,9 +119,11 @@
                 app:layout_constraintEnd_toEndOf="parent">
 
                 <ImageView
+                    android:id="@+id/ivChatSend"
                     android:layout_width="28dp"
                     android:layout_height="wrap_content"
-                    app:srcCompat="@drawable/ic_round_send" />
+                    app:srcCompat="@drawable/ic_round_send"
+                    style="@style/tint"/>
 
             </LinearLayout>
         </LinearLayout>
@@ -156,8 +158,8 @@
             app:layout_constraintTop_toTopOf="parent" />
         <LinearLayout
             android:id="@+id/llChatBack"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
             android:gravity="center"
             android:layout_marginTop="2dp"
             android:layout_marginStart="6dp"
@@ -169,6 +171,25 @@
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 app:srcCompat="@drawable/ic_round_back_24"
+                app:tint="@color/white"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:visibility="invisible"
+            android:id="@+id/llChatCancelEdit"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:gravity="center"
+            android:layout_marginTop="2dp"
+            android:layout_marginStart="6dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="@+id/llTopBackground"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                app:srcCompat="@drawable/cross"
                 app:tint="@color/white"/>
         </LinearLayout>
 
