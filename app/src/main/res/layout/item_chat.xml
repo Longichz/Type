@@ -61,7 +61,7 @@
             android:layout_height="wrap_content"
             android:fontFamily="@font/fira_sans"
             android:maxHeight="38dp"
-            android:text="lastMessage" />
+            android:text="@string/message_removed" />
 
     </LinearLayout>
 
@@ -85,7 +85,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="0"
-            android:textColor="@color/white"
+            style="@style/textInverted"
             android:textSize="13dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"

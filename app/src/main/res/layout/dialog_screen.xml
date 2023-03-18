@@ -63,31 +63,31 @@
 
             <Button
                 android:id="@+id/message_bt2"
-                style="@style/Widget.MaterialComponents.Button.TextButton"
+                style="@style/button_borderless"
                 android:layout_width="wrap_content"
-                android:layout_height="43dp"
+                android:layout_height="35dp"
                 android:fontFamily="@font/fira_sans"
                 android:text="@string/message_bt2"
                 android:textAllCaps="false"
                 android:textColor="@color/type1"
                 android:textStyle="bold"
                 android:textSize="13sp"
-                app:cornerRadius="5dp"
-                app:rippleColor="@color/grey_00"
+                android:textAlignment="center"
+                android:paddingTop="1dp"
                 tools:ignore="TouchTargetSizeCheck" />
             <Button
                 android:id="@+id/message_bt"
-                style="@style/Widget.MaterialComponents.Button.TextButton"
+                style="@style/button_borderless"
                 android:layout_width="wrap_content"
-                android:layout_height="43dp"
+                android:layout_height="35dp"
                 android:fontFamily="@font/fira_sans"
                 android:text="@string/message_bt"
                 android:textAllCaps="false"
                 android:textColor="@color/type1"
                 android:textStyle="bold"
                 android:textSize="13sp"
-                app:cornerRadius="5dp"
-                app:rippleColor="@color/grey_00"
+                android:paddingTop="1dp"
+                android:textAlignment="center"
                 tools:ignore="TouchTargetSizeCheck" />
         </LinearLayout>
 

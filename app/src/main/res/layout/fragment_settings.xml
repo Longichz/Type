@@ -114,7 +114,7 @@
                 style="@style/settings_item"
                 android:layout_width="match_parent"
                 android:layout_height="60dp"
-                android:layout_marginTop="-1.5dp">
+                android:layout_marginTop="-1dp">
 
                 <LinearLayout
                     style="@style/item"
@@ -153,7 +153,7 @@
                 style="@style/settings_item_end"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="-1.5dp"
+                android:layout_marginTop="-1dp"
                 android:minHeight="60dp">
 
                 <LinearLayout
@@ -248,7 +248,7 @@
                 style="@style/settings_item_end"
                 android:layout_width="match_parent"
                 android:layout_height="60dp"
-                android:layout_marginTop="-1.5dp">
+                android:layout_marginTop="-1dp">
 
                 <Button
                     android:id="@+id/btSettingsSignOut"

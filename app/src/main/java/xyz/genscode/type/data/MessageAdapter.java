@@ -19,6 +19,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -27,7 +28,7 @@ import java.util.List;
 import java.util.Locale;
 
 import xyz.genscode.type.R;
-import xyz.genscode.type.interfaces.OnItemClickListener;
+import xyz.genscode.type.interfaces.messages.OnItemClickListener;
 import xyz.genscode.type.models.Message;
 import xyz.genscode.type.models.User;
 
@@ -36,7 +37,6 @@ public class MessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     RecyclerView recyclerView;
     List<Message> messages;
     Context context;
-    ViewClass viewClass;
     DateViewHolder dateViewHolder;
     User user;
     String chatId;
@@ -48,8 +48,8 @@ public class MessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
     public int theme;
 
+    //На случай создания функционала выделения нескольких сообщений
     public boolean isSelectMode = false;
-
     ArrayList<Message> selectObjects = new ArrayList<Message>();
     ArrayList<View> selectObjectsView = new ArrayList<View>();
 
@@ -98,7 +98,6 @@ public class MessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             dateViewHolder = new DateViewHolder(view);
             return dateViewHolder;
         } else {
-            // handle other view types here if necessary
             return null;
         }
 
@@ -115,22 +114,28 @@ public class MessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         long messageTimestamp = message.getTimestamp();
         long timestamp = System.currentTimeMillis();
 
-        if(message.isDate()){
+        if(message.isDate()){ //Если это дата, добавляем её
             DateViewHolder dateViewHolder1 = (DateViewHolder) holder;
 
+            //Дата сообщения
             Date date = new Date(messageTimestamp);
             SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd.MM", Locale.getDefault());
+            SimpleDateFormat dayDateFormat = new SimpleDateFormat("dd", Locale.getDefault());
             String formattedTime = simpleDateFormat.format(date)+"";
+            int formattedDay = Integer.parseInt(dayDateFormat.format(date));
 
+            //Дата сейчас
             Date currentDate = new Date(timestamp);
-            if(date.getDay() == currentDate.getDay()){
+            SimpleDateFormat currentDayDateFormat = new SimpleDateFormat("dd", Locale.getDefault());
+            int currentFormattedDay = Integer.parseInt(currentDayDateFormat.format(currentDate));
+
+            if(formattedDay == currentFormattedDay){ // Сегодня
                 dateViewHolder1.mDateTextView.setText(context.getResources().getString(R.string.message_today));
-            }else if(date.getDay() == currentDate.getDay()-1){
+            }else if(formattedDay == currentFormattedDay-1){ //Вчера
                 dateViewHolder1.mDateTextView.setText(context.getResources().getString(R.string.message_tomorrow));
             }else{
                 dateViewHolder1.mDateTextView.setText(formattedTime);
             }
-
 
             return;
         }
@@ -153,9 +158,11 @@ public class MessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         //Отображаем
         messageHolder.tvTimestamp.setText(edit+formattedTime+unread);
 
-        if(!messageUserId.equals(user.getId())){
+        if(!messageUserId.equals(user.getId())){ //Это сообщение отправлено собеседником?
 
+            //Это сообщение еще не прочитано?
             if(!message.isRead()){
+                //Читаем
                 FirebaseDatabase database = FirebaseDatabase.getInstance();
                 DatabaseReference databaseReference = database.getReference();
                 databaseReference.child("chats")
@@ -181,13 +188,13 @@ public class MessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             messageHolder.llRoot.setGravity(Gravity.START);
             if(theme == THEME_NIGHT) {
                 //В ночную тему
-                messageHolder.tvMessage.setTextColor(context.getResources().getColor(R.color.grey_50));
-                messageHolder.tvTimestamp.setTextColor(context.getResources().getColor(R.color.grey_500));
+                messageHolder.tvMessage.setTextColor(ContextCompat.getColor(context, R.color.grey_50));
+                messageHolder.tvTimestamp.setTextColor(ContextCompat.getColor(context, R.color.grey_500));
                 messageHolder.llMessage.setBackground(messageHolder.messageNightDrawable);
             }else{
                 //В светлую тему
-                messageHolder.tvMessage.setTextColor(context.getResources().getColor(R.color.grey_800));
-                messageHolder.tvTimestamp.setTextColor(context.getResources().getColor(R.color.grey_500));
+                messageHolder.tvMessage.setTextColor(ContextCompat.getColor(context, R.color.grey_800));
+                messageHolder.tvTimestamp.setTextColor(ContextCompat.getColor(context, R.color.grey_500));
                 messageHolder.llMessage.setBackground(messageHolder.messageDayDrawable);
             }
         }else{
@@ -195,18 +202,19 @@ public class MessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             messageHolder.llRoot.setGravity(Gravity.END);
             if(theme == THEME_NIGHT) {
                 //В ночную тему
-                messageHolder.tvMessage.setTextColor(context.getResources().getColor(R.color.grey_50));
-                messageHolder.tvTimestamp.setTextColor(context.getResources().getColor(R.color.grey_200));
+                messageHolder.tvMessage.setTextColor(ContextCompat.getColor(context, R.color.grey_50));
+                messageHolder.tvTimestamp.setTextColor(ContextCompat.getColor(context, R.color.grey_200));
                 messageHolder.llMessage.setBackground(messageHolder.messageMineNightDrawable);
             }else{
                 //В светлую тему
-                messageHolder.tvMessage.setTextColor(context.getResources().getColor(R.color.white));
-                messageHolder.tvTimestamp.setTextColor(context.getResources().getColor(R.color.grey_200));
+                messageHolder.tvMessage.setTextColor(ContextCompat.getColor(context, R.color.white));
+                messageHolder.tvTimestamp.setTextColor(ContextCompat.getColor(context, R.color.grey_200));
                 messageHolder.llMessage.setBackground(messageHolder.messageMineDayDrawable);
             }
 
         }
 
+        //Эффект нажатия на сообщение
         messageHolder.llMessage.setOnTouchListener((View view12, MotionEvent motionEvent) -> {
             switch (motionEvent.getAction()) {
                 case MotionEvent.ACTION_DOWN:
@@ -220,6 +228,7 @@ public class MessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             return false;
         });
 
+        //Устанавливаем слушатель клика
         messageHolder.llMessage.setOnClickListener(v -> {
             if (clickListener != null) {
                 clickListener.onItemClick(position, message, messageHolder.llMessage);
@@ -268,6 +277,7 @@ public class MessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         messageDatePrevious = messageDate;
     }
     public void removeMessage(Message message){
+        //Ищем сообщение в чате
         for (int i = 0; i < messages.size(); i++){
             if(message.getId().equals(messages.get(i).getId())){
                 //Удаляем сообщение
@@ -276,14 +286,15 @@ public class MessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
                 //Если удаленное сообщение было единственным за день, удаляем дату
                 if(i != 0 &&
-                        (messages.get(i).isDate() && messages.get(i-1).isDate())){
+                        (messages.get(i).isDate() && messages.get(i-1).isDate())){ //Если подряд идут две даты, удаляем одну.
                     messages.remove(i);
                     notifyItemRemoved(i);
                 }
-                if (messages.get(0).isDate()) {
+                if (messages.get(0).isDate()) { //Если последнее сообщение дата - удаляем её
                     messages.remove(0);
                     notifyItemRemoved(0);
                     messageDatePrevious = "";
+                    //System.out.println("date deleted" + messageDatePrevious);
                 }
                 break;
             }
@@ -291,6 +302,7 @@ public class MessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     }
 
     public void changeMessage(Message message){
+        //Ищем сообщение в чате
         for (int i = 0; i < messages.size(); i++){
             if(message.getId().equals(messages.get(i).getId())){
                 messages.set(i, message);
@@ -327,7 +339,7 @@ public class MessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     }
 
     public static class DateViewHolder extends RecyclerView.ViewHolder {
-        private TextView mDateTextView;
+        private final TextView mDateTextView;
 
         public DateViewHolder(View itemView) {
             super(itemView);

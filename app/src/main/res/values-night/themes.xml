@@ -21,6 +21,9 @@
     <style name="textSecondary" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <item name="android:textColor">@color/grey_200</item>
     </style>
+    <style name="textInverted" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="android:textColor">@color/black</item>
+    </style>
     <style name="top_indicator" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <item name="android:background">@drawable/top_indicator_night</item>
     </style>

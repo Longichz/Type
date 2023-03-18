@@ -9,6 +9,7 @@ public class Chat {
     private Message lastMessage;
     private ArrayList<String> users;
     private HashMap<String, Message> messages;
+    int utilsUnread = 0;
 
     public Chat() {
     }
@@ -18,6 +19,14 @@ public class Chat {
         this.lastMessage = lastMessage;
         this.users = users;
         this.messages = messages;
+    }
+
+    public int getUtilsUnread() {
+        return utilsUnread;
+    }
+
+    public void setUtilsUnread(int utilsUnread) {
+        this.utilsUnread = utilsUnread;
     }
 
     public HashMap<String, Message> getMessages() {

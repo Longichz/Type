@@ -1,4 +1,4 @@
-package xyz.genscode.type.interfaces;
+package xyz.genscode.type.interfaces.messages;
 
 import android.view.View;
 

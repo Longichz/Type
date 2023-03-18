@@ -1,15 +1,12 @@
 package xyz.genscode.type;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 
-import android.animation.AnimatorSet;
 import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
 import android.content.Intent;
-import android.graphics.drawable.AnimationDrawable;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.transition.Fade;
 import android.util.DisplayMetrics;
 import android.view.View;
@@ -19,12 +16,6 @@ import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
-
-import com.google.firebase.FirebaseApp;
-import com.google.firebase.appcheck.FirebaseAppCheck;
-import com.google.firebase.appcheck.playintegrity.PlayIntegrityAppCheckProviderFactory;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 
 import xyz.genscode.type.dialog.Dialog;
 import xyz.genscode.type.fragments.ContactsFragment;
@@ -70,7 +61,9 @@ public class MainActivity extends AppCompatActivity {
         Intent intent = getIntent();
         if(intent == null) finish();
 
-        user = (User) intent.getSerializableExtra("user");
+        if (intent != null) {
+            user = (User) intent.getSerializableExtra("user");
+        }
 
         createDialog();
 
@@ -126,9 +119,9 @@ public class MainActivity extends AppCompatActivity {
 
             fcvMessenger.setVisibility(View.VISIBLE); fcvContacts.setVisibility(View.INVISIBLE); fcvSettings.setVisibility(View.INVISIBLE);
 
-            ivBottomMessenger.setColorFilter(getResources().getColor(R.color.type3));
-            ivBottomContacts.setColorFilter(getResources().getColor(R.color.grey_300));
-            ivBottomSettings.setColorFilter(getResources().getColor(R.color.grey_300));
+            ivBottomMessenger.setColorFilter(ContextCompat.getColor(this, R.color.type3));
+            ivBottomContacts.setColorFilter(ContextCompat.getColor(this, R.color.grey_300));
+            ivBottomSettings.setColorFilter(ContextCompat.getColor(this, R.color.grey_300));
             tvTopIndicator.setText(getResources().getString(R.string.messenger));
 
             currentFragment = MESSENGER_FRAGMENT;
@@ -152,9 +145,9 @@ public class MainActivity extends AppCompatActivity {
 
             initializeContacts();
 
-            ivBottomMessenger.setColorFilter(getResources().getColor(R.color.grey_300));
-            ivBottomContacts.setColorFilter(getResources().getColor(R.color.type3));
-            ivBottomSettings.setColorFilter(getResources().getColor(R.color.grey_300));
+            ivBottomMessenger.setColorFilter(ContextCompat.getColor(this, R.color.grey_300));
+            ivBottomContacts.setColorFilter(ContextCompat.getColor(this, R.color.type3));
+            ivBottomSettings.setColorFilter(ContextCompat.getColor(this, R.color.grey_300));
             tvTopIndicator.setText(getResources().getString(R.string.contacts));
 
             currentFragment = CONTACTS_FRAGMENT;
@@ -177,9 +170,9 @@ public class MainActivity extends AppCompatActivity {
 
             fcvMessenger.setVisibility(View.INVISIBLE); fcvContacts.setVisibility(View.INVISIBLE); fcvSettings.setVisibility(View.VISIBLE);
 
-            ivBottomMessenger.setColorFilter(getResources().getColor(R.color.grey_300));
-            ivBottomContacts.setColorFilter(getResources().getColor(R.color.grey_300));
-            ivBottomSettings.setColorFilter(getResources().getColor(R.color.type3));
+            ivBottomMessenger.setColorFilter(ContextCompat.getColor(this, R.color.grey_300));
+            ivBottomContacts.setColorFilter(ContextCompat.getColor(this, R.color.grey_300));
+            ivBottomSettings.setColorFilter(ContextCompat.getColor(this, R.color.type3));
             tvTopIndicator.setText(getResources().getString(R.string.settings));
 
             currentFragment = SETTINGS_FRAGMENT;
@@ -229,6 +222,15 @@ public class MainActivity extends AppCompatActivity {
                     .replace(R.id.fcvSettings, fragment)
                     .commit();
         }
+    }
+
+    @Override
+    public void onBackPressed() {
+        if(dialog.messageActive == 1){
+            dialog.hideMessage();
+            return;
+        }
+        super.onBackPressed();
     }
 
     private void createDialog(){

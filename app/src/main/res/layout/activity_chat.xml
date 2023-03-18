@@ -55,7 +55,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/llTopBackground"
+        app:layout_constraintTop_toBottomOf="@+id/llTopChatBackground"
         android:gravity="bottom"
         android:weightSum="10">
 
@@ -132,7 +132,7 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:animateLayoutChanges="true"
-        android:id="@+id/llTopBackground"
+        android:id="@+id/llTopChatBackground"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:paddingTop="35dp"
@@ -164,7 +164,7 @@
             android:layout_marginTop="2dp"
             android:layout_marginStart="6dp"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="@+id/llTopBackground"
+            app:layout_constraintStart_toStartOf="@+id/llTopChatBackground"
             app:layout_constraintTop_toTopOf="parent">
 
             <ImageView
@@ -183,7 +183,7 @@
             android:layout_marginTop="2dp"
             android:layout_marginStart="6dp"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="@+id/llTopBackground"
+            app:layout_constraintStart_toStartOf="@+id/llTopChatBackground"
             app:layout_constraintTop_toTopOf="parent">
 
             <ImageView

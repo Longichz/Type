@@ -4,7 +4,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".fragments.MessengerFragment">
+    tools:context=".fragments.MessengerFragment"
+    android:id="@+id/llChatListRootView"
+    android:animateLayoutChanges="true">
 
     <TextView
         tools:visibility="visible"
@@ -32,6 +34,13 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         />
+
+    <include
+        android:visibility="invisible"
+        android:id="@+id/llPopupChatInclude"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        layout="@layout/context_bottom_popup_chat"/>
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

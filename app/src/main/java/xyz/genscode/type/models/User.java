@@ -5,6 +5,7 @@ import android.os.Parcelable;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 
 public class User implements Serializable {
@@ -14,12 +15,12 @@ public class User implements Serializable {
     private String info;
     private String avatarUrl;
     private String avatarColor;
-    private ArrayList<String> chats = new ArrayList<>();
+    private HashMap<String, Boolean> chats = new HashMap<>();
 
     public User() {
     }
 
-    public User(String id, String phone, String name, String info, String avatarUrl, String avatarColor, ArrayList<String> chats) {
+    public User(String id, String phone, String name, String info, String avatarUrl, String avatarColor, HashMap<String, Boolean> chats) {
         this.id = id;
         this.phone = phone;
         this.name = name;
@@ -29,16 +30,16 @@ public class User implements Serializable {
         this.chats = chats;
     }
 
-    public ArrayList<String> getChats() {
+    public HashMap<String, Boolean> getChats() {
         return chats;
     }
 
-    public void setChats(ArrayList<String> chats) {
+    public void setChats(HashMap<String, Boolean> chats) {
         this.chats = chats;
     }
 
     public void addChat(String id) {
-        if(this.chats != null) chats.add(id);
+        if(this.chats != null) chats.put(id, true);
     }
 
     public String getId() {

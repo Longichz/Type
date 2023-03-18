@@ -1,14 +1,26 @@
 <resources>
     <string name="app_name">Type!</string>
 
-    <string name="message_bt2">Закрыть</string>
+    <string name="message_bt2">Отмена</string>
     <string name="message_bt">Понятно</string>
     <string name="message_edited">ред.</string>
     <string name="message_unread">•</string>
     <string name="message_today">Сегодня</string>
     <string name="message_tomorrow">Вчера</string>
     <string name="message_remove">Удалить</string>
+    <string name="message_removed"><i>Удаленное сообщение</i></string>
     <string name="message_edit">Редактировать</string>
+
+    <string name="chat_type">Сообщение</string>
+    <string name="chat_no_chats">Начните общение во вкладке контактов 📘</string>
+    <string name="chat_read">Пометить как прочитанное</string>
+    <string name="chat_removed">Уведомление</string>
+    <string name="chat_removed_content">Этот чат был удален собеседником.</string>
+    <string name="chat_remove">Удалить</string>
+    <string name="chat_remove_content">Вы уверены, что хотите удалить чат для всех без возможности восстановления?</string>
+    <string name="chat_error_loading_header">Ошибка</string>
+    <string name="chat_error_loading_content">Не удалось загрузить ваши чаты 😥. \nСкоро вернемся в строй.</string>
+    <string name="chat_error_loading_once_content">Не удалось загрузить ваш чат с</string>
 
     <string name="user_profile">Профиль</string>
     <string name="user_removed">Удаленный аккаунт</string>
@@ -65,9 +77,5 @@
     <string name="contacts_permission_allow">Разрешить</string>
     <string name="contacts_permission_back">Отмена</string>
     <string name="contacts_permission_denied">Нажмите, чтобы разрешить приложению доступ к контактам.</string>
-
-    <string name="chat_type">Сообщение</string>
-    <string name="chat_no_chats">Начните общение во вкладке контактов 📘</string>
-
 
 </resources>
