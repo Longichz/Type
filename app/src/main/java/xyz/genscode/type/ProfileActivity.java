@@ -3,7 +3,6 @@ package xyz.genscode.type;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
@@ -19,10 +18,6 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -35,7 +30,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-import xyz.genscode.type.models.Chat;
 import xyz.genscode.type.models.User;
 
 public class ProfileActivity extends AppCompatActivity {
@@ -96,61 +90,62 @@ public class ProfileActivity extends AppCompatActivity {
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference databaseReference = database.getReference();
 
-        currentUser = (User) intent.getSerializableExtra("currentUser");
+        //Получаем данные
+        if (intent != null) {
 
-        if(intent.hasExtra("userId")) {
-            userId = intent.getStringExtra("userId");
-            databaseReference.child("users").child(userId).get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
-                @Override
-                public void onComplete(@NonNull Task<DataSnapshot> task) {
+            currentUser = (User) intent.getSerializableExtra("currentUser");
+
+            if (intent.hasExtra("userId")) { //Предоставлен userId, ищем пользователя по userId
+                userId = intent.getStringExtra("userId");
+                databaseReference.child("users").child(userId).get().addOnCompleteListener(task -> {
                     llActions.setAlpha(1);
                     llActions.setEnabled(true);
 
-                    if(task.isSuccessful()){
+                    if (task.isSuccessful()) {
                         user = task.getResult().getValue(User.class);
                         loadUser();
-                    }else{
-                        //ERROR
                     }
-                }
-            });
-        }
+                });
+            }
 
-        if(intent.hasExtra("phone")) {
-            phone = intent.getStringExtra("phone");
+            if(intent.hasExtra("phone")) { //Предоставлен телефон, ищем пользователя по телефону
+                phone = intent.getStringExtra("phone");
 
-            GenericTypeIndicator<HashMap<String, User>> t = new GenericTypeIndicator<HashMap<String, User>>() {};
+                GenericTypeIndicator<HashMap<String, User>> t = new GenericTypeIndicator<HashMap<String, User>>() {};
 
-            Query query = databaseReference.child("users").orderByChild("phone").equalTo(phone);
+                Query query = databaseReference.child("users").orderByChild("phone").equalTo(phone);
 
-            query.addListenerForSingleValueEvent(new ValueEventListener() {
-                @Override
-                public void onDataChange(DataSnapshot dataSnapshot) {
+                query.addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
 
-                    llActions.setAlpha(1);
-                    llActions.setEnabled(true);
+                        llActions.setAlpha(1);
+                        llActions.setEnabled(true);
 
-                    if (dataSnapshot.exists()) {
-                        HashMap<String, User> hashMap = dataSnapshot.getValue(t);
-                        for (Map.Entry<String, User> entry : hashMap.entrySet()) {
-                            user = entry.getValue();
+                        if (dataSnapshot.exists()) {
+                            HashMap<String, User> hashMap = dataSnapshot.getValue(t);
+                            for (Map.Entry<String, User> entry : hashMap.entrySet()) {
+                                user = entry.getValue();
+                            }
+                            loadUser(); //Загружаем найденного пользователя
+                        } else {
+                            loadUnknownUser(); //Загружаем неизвестного пользователя
                         }
-                        loadUser();
-                    } else {
-                        loadUnknownUser();
                     }
-                }
 
-                @Override
-                public void onCancelled(DatabaseError databaseError) {
-                    // Обрабатываем ошибку, если произошла
-                }
-            });
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError databaseError) {
+                        // Обрабатываем ошибку, если произошла
+                    }
+                });
+
+            }
 
         }
 
+        //Написать человеку
         btType.setOnClickListener(view -> {
-            if(intent.hasExtra("fromChat")) {
+            if (intent != null && intent.hasExtra("fromChat")) {
                 finish();
                 return;
             }
@@ -161,52 +156,48 @@ public class ProfileActivity extends AppCompatActivity {
             intent1.putExtra("currentUserId", currentUser.getId());
             intent1.putExtra("name", user.getName());
 
+            // Проверяем создан ли уже чат с этим человеком
             databaseReference.child("users").child(currentUser.getId()).child("chats").addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
-                public void onDataChange(DataSnapshot dataSnapshot) {
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                     // Получаем список всех чатов пользователя
                     ArrayList<String> chats = new ArrayList<>();
                     for (DataSnapshot chatSnapshot : dataSnapshot.getChildren()) {
-                        String chatId = chatSnapshot.getValue(String.class);
+                        String chatId = chatSnapshot.getKey();
                         chats.add(chatId);
                     }
                     // Проверяем каждый чат на наличие userId
-                    if(chats.size() == 0){
+                    if(chats.size() == 0){ //Чатов нету
                         startActivity(intent1);
+                        finish();
                         return;
                     }
                     for (String chatId : chats) {
                         databaseReference.child("chats").child(chatId).child("users").addListenerForSingleValueEvent(new ValueEventListener() {
                             @Override
-                            public void onDataChange(DataSnapshot dataSnapshot) {
-                                // Проверяем каждого пользователя в чате на наличие userId
+                            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                                 boolean foundChat = false;
-                                boolean foundUser = false;
                                 for (DataSnapshot userSnapshot : dataSnapshot.getChildren()) {
                                     String userIdInChat = userSnapshot.getValue(String.class);
-                                    System.out.println(userIdInChat + " = " + userId);
-                                    if (userIdInChat.equals(userId)) {
+                                    if (userIdInChat != null && userIdInChat.equals(userId)) {
                                         // Нашли чат, содержащий userId
                                         foundChat = true;
-                                        foundUser = true;
 
-                                        System.out.println(chatId);
                                         intent1.putExtra("chatId", chatId);
                                         startActivity(intent1);
+                                        finish();
                                         break;
                                     }
                                 }
                                 // Если userId не найден в текущем чате, то проверяем следующий чат
-                                if (!foundUser && !foundChat) {
+                                if (!foundChat) {
                                     // Не нашли ни один чат, содержащий userId, стартуем без chatId
                                     startActivity(intent1);
+                                    finish();
                                 }
                             }
                             @Override
-                            public void onCancelled(DatabaseError databaseError) {
-                                // Обработка ошибок
-                                btType.setEnabled(true);
-                            }
+                            public void onCancelled(@NonNull DatabaseError databaseError) { btType.setEnabled(true); }
                         });
                     }
                 }
