@@ -20,6 +20,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -33,6 +34,7 @@ import xyz.genscode.type.ChatActivity;
 import xyz.genscode.type.MainActivity;
 import xyz.genscode.type.R;
 import xyz.genscode.type.data.ChatListAdapter;
+import xyz.genscode.type.dialog.Toast;
 import xyz.genscode.type.models.Chat;
 import xyz.genscode.type.models.Message;
 import xyz.genscode.type.models.User;
@@ -87,7 +89,7 @@ public class MessengerFragment extends Fragment {
         chatListAdapter.setLongClickListener((position, chat) -> {
             Vibrator vibrator = (Vibrator) getContext().getSystemService(Context.VIBRATOR_SERVICE);
             if(vibrator.hasVibrator()){
-                vibrator.vibrate(10);
+                vibrator.vibrate(3);
             }
 
             if(chat.getUtilsUnread() > 0) {
@@ -105,7 +107,6 @@ public class MessengerFragment extends Fragment {
                 popupChat.hide();
             });
 
-
             popupChat.btPopupDelete.setOnClickListener(view1 ->{
                 popupChat.hide();
                 ((MainActivity) getContext()).dialog.showMessageWithRedButton(
@@ -115,14 +116,11 @@ public class MessengerFragment extends Fragment {
                         "def"
                 );
 
-                ((MainActivity) getContext()).dialog.getMessageButton1().setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        ((MainActivity) getContext()).dialog.getMessageButton1().setEnabled(false);
-                        ((MainActivity) getContext()).dialog.getMessageButton2().setEnabled(false);
+                ((MainActivity) getContext()).dialog.getMessageButton1().setOnClickListener(view2 -> {
+                    ((MainActivity) getContext()).dialog.getMessageButton1().setEnabled(false);
+                    ((MainActivity) getContext()).dialog.getMessageButton2().setEnabled(false);
 
-                        deleteChat(chat);
-                    }
+                    deleteChat(chat);
                 });
 
             });
@@ -146,35 +144,70 @@ public class MessengerFragment extends Fragment {
         rvChatList.setLayoutManager(linearLayoutManager);
         rvChatList.setAdapter(chatListAdapter);
 
-        DatabaseReference databaseRef = FirebaseDatabase.getInstance().getReference("users");
+        DatabaseReference databaseRef = FirebaseDatabase.getInstance().getReference("users").child(mUser.getId()).child("chats");
 
-        databaseRef.child(mUser.getId()).addValueEventListener(new ValueEventListener() {
+        //Сортируем наши чаты по timestamp (нужно только для первой загрузки)
+        Query query = databaseRef.orderByValue();
+
+        //Слушатель чата
+
+        ChildEventListener chatsChildEventListener = new ChildEventListener() {
             @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                ArrayList<String> chats = new ArrayList<>();
-                if(dataSnapshot.child("chats").getChildrenCount() > 0) {
-                    tvNoChats.setVisibility(View.GONE);
-                    for (DataSnapshot chatSnapshot : dataSnapshot.child("chats").getChildren()) {
-                        String chatId = chatSnapshot.getKey();
-                        if (chatId != null) {
-                            chats.add(chatId);
-                        }
-                    }
-                    chatListAdapter.setChats(chats);
-                }else{
-                    //NO CHATS
-                    chatListAdapter.setChats(chats);
+            public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) { //добавляем
+                chatListAdapter.addChat(snapshot.getKey());
+            }
 
+            @Override
+            public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) { //изменяем
+                /*
+                    Так как у чата единственное поле timestamp - при изменении этого поля timestamp может только увеличиться
+                    и новый timestamp в любом случае будет больше всех других timestamp,
+                    поэтому при изменении, сразу поднимаем чат вверх.
+                    * Но при удалении сообщения, чат не опустится вниз.
+                 */
+                chatListAdapter.upChat(snapshot.getKey());
+            }
+
+            @Override
+            public void onChildRemoved(@NonNull DataSnapshot snapshot) { //удаляем
+                chatListAdapter.removeChat(snapshot.getKey());
+            }
+
+            @Override public void onChildMoved(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {}
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+                assert getContext() != null;
+                ((MainActivity) getContext()).toast.show(getResources().getString(R.string.chat_error_loading));
+
+            }
+        };
+        query.addChildEventListener(chatsChildEventListener);
+
+        //Слушатель чата для определения есть ли вообще чаты
+        databaseRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if(snapshot.getChildrenCount() > 0){
+                    tvNoChats.setVisibility(View.GONE);
+                }else{
                     tvNoChats.setVisibility(View.VISIBLE);
                 }
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                //ERROR
-                ((MainActivity) getContext()).dialog.showMessage(getResources().getString(R.string.chat_error_loading_header),
-                        getResources().getString(R.string.chat_error_loading_content));
+                assert getContext() != null;
+                ((MainActivity) getContext()).toast.show(getResources().getString(R.string.chat_error_loading));
             }
+        });
+
+        //Слушатель кнопки начать диалог
+        View llStartDialog = view.findViewById(R.id.llStartDialogButton);
+        llStartDialog.setOnClickListener(view12 -> {
+            assert getContext() != null;
+            ((MainActivity) getContext()).navigate("contacts");
         });
 
         createPopupChat();
@@ -210,7 +243,8 @@ public class MessengerFragment extends Fragment {
 
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
-                System.out.println("The read failed: " + databaseError.getCode());
+                assert getContext() != null;
+                ((MainActivity) getContext()).toast.show(getResources().getString(R.string.chat_error_loading));
             }
         });
 
@@ -229,31 +263,24 @@ public class MessengerFragment extends Fragment {
 
 
         //Удаляем сам чат со всеми сообщениями
+
+        assert getContext() != null;
         databaseReference.child("chats").child(chat.getChatId()).setValue(null)
                 .addOnCompleteListener(task -> ((MainActivity) getContext()).dialog.hideMessage());
 
     }
 
     private void createPopupChat(){ //Создаем popup
-        if(popupChat == null){
-            System.out.println("PopupChat: Now class is constructing...");
-            View llPopupInclude = view.findViewById(R.id.llPopupChatInclude);
-            View llPopupDark = view.findViewById(R.id.llPopupChatDark);
-            View llPopupBackground = view.findViewById(R.id.llPopupChatBackground);
-            View llPopupChatRead = view.findViewById(R.id.llPopupChatRead);
-            View llPopupChatDelete = view.findViewById(R.id.llPopupChatDelete);
-            Button btPopupChatRead = view.findViewById(R.id.btPopupChatRead);
-            Button btPopupChatDelete = view.findViewById(R.id.btPopupChatDelete);
+        View llPopupInclude = view.findViewById(R.id.llPopupChatInclude);
+        View llPopupDark = view.findViewById(R.id.llPopupChatDark);
+        View llPopupBackground = view.findViewById(R.id.llPopupChatBackground);
+        View llPopupChatRead = view.findViewById(R.id.llPopupChatRead);
+        View llPopupChatDelete = view.findViewById(R.id.llPopupChatDelete);
+        Button btPopupChatRead = view.findViewById(R.id.btPopupChatRead);
+        Button btPopupChatDelete = view.findViewById(R.id.btPopupChatDelete);
 
-            popupChat = new PopupChat(llPopupInclude, llPopupDark, llPopupBackground, llPopupChatRead, llPopupChatDelete,
-                    btPopupChatRead, btPopupChatDelete);
-        }else{
-            System.out.println("PopupChat: Now class is already constructed");
-            System.out.println("PopupChat: Removing object...");
-            popupChat = null;
-            System.gc();
-            createPopupChat();
-        }
+        popupChat = new PopupChat(llPopupInclude, llPopupDark, llPopupBackground, llPopupChatRead, llPopupChatDelete,
+                btPopupChatRead, btPopupChatDelete);
     }
 
     @Override
@@ -266,8 +293,8 @@ public class MessengerFragment extends Fragment {
                 case CHAT:
                     if (data != null && data.getStringExtra("data") != null) {
                         if(data.getStringExtra("data").equals("removed")){ //Чат удален
-                            ((MainActivity) getContext()).dialog.showMessage(getResources().getString(R.string.chat_removed),
-                                    getResources().getString(R.string.chat_removed_content));
+                            assert getContext() != null;
+                            ((MainActivity) getContext()).toast.show(getResources().getString(R.string.chat_removed_content), Toast.TIME_LONG);
                         }
                     }
             }

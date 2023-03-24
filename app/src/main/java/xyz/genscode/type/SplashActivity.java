@@ -1,9 +1,11 @@
 package xyz.genscode.type;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatDelegate;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.drawable.AnimationDrawable;
 import android.os.Bundle;
 import android.os.Handler;
@@ -19,19 +21,36 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
+import xyz.genscode.type.data.SettingsHandler;
 import xyz.genscode.type.models.User;
 
 @SuppressLint("CustomSplashScreen")
 public class SplashActivity extends AppCompatActivity {
-    long time;
     Handler handler;
     static boolean isActivityCreated = false;
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        SharedPreferences settings = this.getSharedPreferences(SettingsHandler.STORAGE_NAME, MODE_PRIVATE);
+        int theme = settings.getInt(SettingsHandler.THEME, 0);
+        switch (theme) {
+            case SettingsHandler.THEME_SYSTEM:
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
+                break;
+            case SettingsHandler.THEME_NIGHT:
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+                break;
+            case SettingsHandler.THEME_DAY:
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+                break;
+        }
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash);
-
-        time = System.currentTimeMillis();
 
         ImageView ivLogo = findViewById(R.id.ivLogo);
         TextView tvLogo = findViewById(R.id.tvLogo);
@@ -82,12 +101,13 @@ public class SplashActivity extends AppCompatActivity {
     }
 
     private void goToSignInActivity(){
+        isActivityCreated = false;
         startActivity(new Intent(SplashActivity.this, SignInActivity.class));
         super.finish();
     }
 
     private void goToMainActivity(User user){
-        System.out.println("Splash time: "+(System.currentTimeMillis()-time));
+        isActivityCreated = false;
         Intent intent = new Intent(SplashActivity.this, MainActivity.class);
         intent.putExtra("user", user);
         startActivity(intent);

@@ -30,6 +30,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import xyz.genscode.type.dialog.Toast;
 import xyz.genscode.type.models.User;
 
 public class ProfileActivity extends AppCompatActivity {

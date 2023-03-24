@@ -18,14 +18,16 @@
         android:orientation="horizontal"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toTopOf="parent"
+        tools:ignore="UseCompoundDrawables">
 
         <ImageView
             android:id="@+id/ivLogo"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@drawable/logo_anim"
-            android:orientation="horizontal" />
+            android:orientation="horizontal"
+            tools:ignore="ContentDescription,ImageContrastCheck" />
 
         <TextView
             style="@style/text"
@@ -54,21 +56,24 @@
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="4dp"
             android:scaleType="center"
-            android:src="@drawable/loading1" />
+            android:src="@drawable/loading1"
+            tools:ignore="ContentDescription" />
         <ImageView
             android:id="@+id/ivLoading2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="4dp"
             android:scaleType="center"
-            android:src="@drawable/loading2" />
+            android:src="@drawable/loading2"
+            tools:ignore="ContentDescription" />
         <ImageView
             android:id="@+id/ivLoading3"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="4dp"
             android:scaleType="center"
-            android:src="@drawable/loading3" />
+            android:src="@drawable/loading3"
+            tools:ignore="ContentDescription" />
     </LinearLayout>
 
     <LinearLayout
@@ -108,7 +113,8 @@
                 android:visibility="gone"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintTop_toTopOf="parent"
+                tools:ignore="ContentDescription,HardcodedText" />
 
             <TextView
                 android:id="@+id/tvSignIn"
@@ -136,7 +142,8 @@
             android:animateLayoutChanges="true"
             android:gravity="center_vertical"
             android:orientation="horizontal"
-            android:paddingStart="15dp">
+            android:paddingStart="15dp"
+            tools:ignore="RtlSymmetry">
 
             <TextView
                 android:id="@+id/tvCountryCode"
@@ -146,7 +153,8 @@
                 android:layout_marginEnd="5dp"
                 android:fontFamily="@font/fira_sans"
                 android:text="@string/country_code_ru"
-                android:textSize="14sp" />
+                android:textSize="14sp"
+                tools:ignore="TextContrastCheck" />
 
             <EditText
                 android:id="@+id/etPhone"
@@ -161,15 +169,14 @@
                 android:importantForAutofill="no"
                 android:inputType="textAutoCorrect|textCapSentences|phone"
                 android:textSize="14sp"
-                tools:ignore="TextContrastCheck" />
+                tools:ignore="TextContrastCheck,VisualLintTextFieldSize" />
         </LinearLayout>
 
         <Button
-
             android:id="@+id/btGetSms"
-            style="@style/Widget.Material3.Button.TextButton"
+            style="@style/button_borderless"
             android:layout_width="wrap_content"
-            android:layout_height="42dp"
+            android:layout_height="41dp"
             android:layout_marginBottom="5dp"
             android:alpha="0.6"
             android:enabled="false"
@@ -177,25 +184,25 @@
             android:text="@string/get_sms"
             android:textColor="@color/blue_500"
             android:textSize="15sp"
-            app:cornerRadius="12dp"
-            app:rippleColor="@color/blue_200" />
+            tools:ignore="TouchTargetSizeCheck" />
 
     </LinearLayout>
 
     <TextView
         android:id="@+id/tvPolicyPrivacy"
         style="@style/textSecondary"
-        android:alpha="0.6"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="20dp"
         android:layout_marginBottom="16dp"
+        android:alpha="0.6"
         android:fontFamily="@font/fira_sans"
         android:text="@string/privacy_policy"
         android:textAlignment="center"
         android:textSize="12sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        tools:ignore="TextContrastCheck" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

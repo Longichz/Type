@@ -38,9 +38,9 @@ public class Dialog extends AppCompatActivity{
         return messageButton2;
     }
 
-    public Dialog(TextView messageHeaderObj, TextView messageContentObj, Button messageButtonObj, Button messageButton2Obj, View messageIncludeObj, View messageBodyObj){
-        System.out.println("Message: Class constructed");
 
+    //Конструктор сообщения.
+    public Dialog(TextView messageHeaderObj, TextView messageContentObj, Button messageButtonObj, Button messageButton2Obj, View messageIncludeObj, View messageBodyObj){
         handler = new android.os.Handler();
         messageHeader = messageHeaderObj;
         messageContent = messageContentObj;
@@ -53,6 +53,8 @@ public class Dialog extends AppCompatActivity{
         messageButton2.setOnClickListener(view -> hideMessage());
     }
 
+
+    //Показать сообщение
     public void showMessage(String header, String content, String bt1, String bt2){
         showMessage(header, content, bt1, bt2, false);
     }
@@ -64,6 +66,8 @@ public class Dialog extends AppCompatActivity{
         showMessage(header, content, "def", "", false);
     }
 
+
+    //Показать сообщение с красной кнопкой действия
     public void showMessageWithRedButton(String header, String content){
         showMessage(header, content, "def", "", true);
     }
@@ -75,14 +79,16 @@ public class Dialog extends AppCompatActivity{
         showMessage(header, content, bt1, bt2, true);
     }
 
+
+    //Показываем сообщение
     private void showMessage(String header, String content, String bt1, String bt2, boolean isRedButton){
+        //Добавляем в очередь
         queueCount++;
         int num = queueCount;
         Thread queue = new Thread(() -> {
             while (true){
-                if(messageActive != 1){
+                if(messageActive != 1){ //Ждем пока предыдущее сообщение будет скрыто, перед тем как показать новое
                     if((queueValue+1) == num){
-                        System.out.println("Message: show "+num+", value "+queueValue);
                         runOnUiThread(() -> {
                             showMessagePriority(header, content, bt1, bt2, isRedButton);
                             queueValue++;
@@ -106,6 +112,9 @@ public class Dialog extends AppCompatActivity{
     public void showMessagePriority(String header, String content, String bt1, String bt2, boolean isRedButton){
         messageActive = 1;
 
+        messageButton1.setEnabled(true);
+        messageButton2.setEnabled(true);
+
         messageButton1.setText(R.string.message_bt);
         messageButton2.setText(R.string.message_bt2);
         if(!bt1.equals("def")) messageButton1.setText(bt1);
@@ -126,16 +135,14 @@ public class Dialog extends AppCompatActivity{
         messageButton2.setVisibility(View.VISIBLE);
         if(bt2.equals(""))  messageButton2.setVisibility(View.INVISIBLE);
 
-        messageButton1.setEnabled(true);
-        messageButton2.setEnabled(true);
         messageHeader.setText(header);
         messageContent.setText(content);
 
-        Animation anim = AnimationUtils.loadAnimation(messageBody.getContext(), R.anim.alpha_in);
         Animation anim2 = AnimationUtils.loadAnimation(messageBody.getContext(), R.anim.jump_in_scaled);
         Animation anim3 = AnimationUtils.loadAnimation(messageBody.getContext(), R.anim.jump_in_scaled_unscale);
+
         messageInclude.setVisibility(View.VISIBLE);
-        messageInclude.startAnimation(anim);
+
         messageBody.startAnimation(anim2);
         handler.postDelayed(() -> messageBody.startAnimation(anim3), 90);
     }
@@ -147,13 +154,14 @@ public class Dialog extends AppCompatActivity{
         messageButton1.setEnabled(false);
         messageButton2.setEnabled(false);
 
-        Animation anim = AnimationUtils.loadAnimation(messageBody.getContext(), R.anim.alpha_out_250);
         Animation anim2 = AnimationUtils.loadAnimation(messageBody.getContext(), R.anim.jump_out_scaled);
         Animation anim3 = AnimationUtils.loadAnimation(messageBody.getContext(), R.anim.jump_out_unscaled);
-        messageInclude.startAnimation(anim);
+
         messageBody.startAnimation(anim2);
-        handler.postDelayed(() -> messageBody.startAnimation(anim3), 90);
-        handler.postDelayed(() -> {messageInclude.setVisibility(View.INVISIBLE); messageActive = 0;}, 250);
+        handler.postDelayed(() -> messageBody.startAnimation(anim3), 175);
+        handler.postDelayed(()-> messageActive = 0, 250);
+
+        messageInclude.setVisibility(View.GONE);
 
     }
 }

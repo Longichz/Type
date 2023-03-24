@@ -7,12 +7,12 @@
 
     <LinearLayout
         android:id="@+id/llPopupChatDark"
-        android:clickable="true"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="horizontal"
+        android:clickable="true"
         android:focusable="true"
-        />
+        android:orientation="horizontal"
+        tools:ignore="SpeakableTextPresentCheck" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/llPopupChatBackground"
@@ -32,13 +32,15 @@
             android:id="@+id/llPopupChatRead"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            app:layout_constraintBottom_toTopOf="@+id/llPopupChatDelete"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            >
+            android:layout_marginBottom="5dp">
 
             <ImageView
                 android:id="@+id/ivPopupChatRead"
+                style="@style/tint"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="10dp"
@@ -46,32 +48,32 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 app:srcCompat="@drawable/eye"
-                style="@style/tint" />
+                tools:ignore="ContentDescription" />
 
             <TextView
                 android:id="@+id/tvPopupChatRead"
+                style="@style/text"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="15dp"
                 android:text="@string/chat_read"
                 android:textSize="14sp"
-                style="@style/text"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toEndOf="@+id/ivPopupChatRead"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintTop_toTopOf="parent"
+                tools:ignore="VisualLintOverlap" />
 
             <Button
                 android:id="@+id/btPopupChatRead"
-                style="@style/Widget.Material3.Button.TextButton"
+                style="@style/button_borderless"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:minHeight="50dp"
-                app:rippleColor="@color/grey_00"
-                app:cornerRadius="15dp"
+                android:minHeight="30dp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="@+id/ivPopupChatRead"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:ignore="SpeakableTextPresentCheck,TouchTargetSizeCheck,VisualLintButtonSize" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -79,9 +81,9 @@
             android:id="@+id/llPopupChatDelete"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/llPopupChatRead"
             >
 
             <ImageView
@@ -93,7 +95,8 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 app:srcCompat="@drawable/trash"
-                app:tint="@color/red" />
+                app:tint="@color/red"
+                tools:ignore="ContentDescription" />
 
             <TextView
                 android:id="@+id/tvPopupChatDelete"
@@ -101,24 +104,24 @@
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="15dp"
                 android:text="@string/message_remove"
-                android:textSize="14sp"
                 android:textColor="@color/red"
+                android:textSize="14sp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toEndOf="@+id/ivPopupChatDelete"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintTop_toTopOf="parent"
+                tools:ignore="TextContrastCheck,VisualLintOverlap" />
 
             <Button
                 android:id="@+id/btPopupChatDelete"
-                style="@style/Widget.Material3.Button.TextButton"
+                style="@style/button_borderless_red"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:minHeight="50dp"
-                app:rippleColor="@color/red_ripple"
-                app:cornerRadius="15dp"
+                android:minHeight="30dp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="@+id/ivPopupChatDelete"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:ignore="SpeakableTextPresentCheck,TouchTargetSizeCheck,VisualLintButtonSize" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 

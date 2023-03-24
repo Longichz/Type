@@ -42,6 +42,7 @@ import java.util.Locale;
 
 import jp.wasabeef.blurry.Blurry;
 import xyz.genscode.type.data.MessageAdapter;
+import xyz.genscode.type.data.SettingsHandler;
 import xyz.genscode.type.models.Chat;
 import xyz.genscode.type.models.Message;
 import xyz.genscode.type.models.User;
@@ -57,6 +58,8 @@ public class ChatActivity extends AppCompatActivity{
     View llLoading; TextView tvName;
     Handler handler;
     String name;
+
+    View msgView; //для onBackPressed
 
     @SuppressLint("StaticFieldLeak")
     static PopupMessage popupMessage;
@@ -134,6 +137,8 @@ public class ChatActivity extends AppCompatActivity{
                             profileIntent.putExtra("fromChat", true);
                             startActivity(profileIntent);
                         });
+
+                        findViewById(R.id.llChatFieldBackground).setVisibility(View.VISIBLE);
                     }
                 });
             }
@@ -190,6 +195,8 @@ public class ChatActivity extends AppCompatActivity{
                         View llChat = findViewById(R.id.llChat);
                         ImageView blurImageView = findViewById(R.id.blurImageView);
 
+                        msgView = view;
+
                         //Скрываем клавиатуру
                         InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
                         View root = getCurrentFocus();
@@ -203,17 +210,19 @@ public class ChatActivity extends AppCompatActivity{
                         handler.postDelayed((Runnable) () -> {
                             view.setVisibility(View.INVISIBLE);
 
-                            Blurry.with(getApplicationContext())
-                                    .radius(15)
-                                    .sampling(4)
-                                    .capture(llChatRoot)
-                                    .getAsync(bitmap -> {
-                                        blurImageView.setImageBitmap(bitmap);
-                                        blurImageView.setVisibility(View.VISIBLE);
-                                        llChat.animate().alpha(0).setDuration(250).start();
-                                        view.setVisibility(View.VISIBLE);
-                                        rvChat.setEnabled(true); //Защищаемся от клика на два сообщения
-                                    });
+                            if(SettingsHandler.getInstance().optimization_blur) { //Включен ли блюр в настройках
+                                Blurry.with(getApplicationContext())
+                                        .radius(15)
+                                        .sampling(4)
+                                        .capture(llChatRoot)
+                                        .getAsync(bitmap -> {
+                                            blurImageView.setImageBitmap(bitmap);
+                                            blurImageView.setVisibility(View.VISIBLE);
+                                            llChat.animate().alpha(0).setDuration(250).start();
+                                            view.setVisibility(View.VISIBLE);
+                                            rvChat.setEnabled(true); //Защищаемся от клика на два сообщения
+                                        });
+                            }
 
                             //Показываем всплывающее меню (Удалить, редактировать)
                             int popupHeight;
@@ -290,6 +299,7 @@ public class ChatActivity extends AppCompatActivity{
                             //Задаем код кнопкам в выезжающем меню
                             popupMessage.llPopupBackgroundDark.setOnClickListener(view1 -> { //Скрытие
                                 popupMessage.hide();
+                                view.setVisibility(View.VISIBLE);
                                 llPopupMessageRoot.animate().y(absoluteYTop).setDuration(250).start();
                                 blurImageView.setVisibility(View.INVISIBLE);
                                 llChat.animate().alpha(1).setDuration(250).start();
@@ -297,6 +307,7 @@ public class ChatActivity extends AppCompatActivity{
 
                             popupMessage.btPopupEdit.setOnClickListener(view12 -> { //Редактирование
                                 popupMessage.hide();
+                                view.setVisibility(View.VISIBLE);
                                 llPopupMessageRoot.animate().y(absoluteYTop).setDuration(250).start();
                                 blurImageView.setVisibility(View.INVISIBLE);
                                 llChat.animate().alpha(1).setDuration(250).start();
@@ -306,6 +317,7 @@ public class ChatActivity extends AppCompatActivity{
 
                             popupMessage.btPopupDelete.setOnClickListener(view12 -> { //Удаление
                                 popupMessage.hide();
+                                view.setVisibility(View.VISIBLE);
                                 llPopupMessageRoot.animate().y(absoluteYTop).setDuration(250).start();
                                 blurImageView.setVisibility(View.INVISIBLE);
                                 llChat.animate().alpha(1).setDuration(250).start();
@@ -441,8 +453,8 @@ public class ChatActivity extends AppCompatActivity{
                         }
                     });
 
-                    databaseReference.child("users").child(userId).child("chats").child(chatId).setValue(true);
-                    databaseReference.child("users").child(currentUserId).child("chats").child(chatId).setValue(true);
+                    databaseReference.child("users").child(userId).child("chats").child(chatId).setValue(System.currentTimeMillis());
+                    databaseReference.child("users").child(currentUserId).child("chats").child(chatId).setValue(System.currentTimeMillis());
 
                     //Инициализируем чат
                     initializeChat();
@@ -464,6 +476,10 @@ public class ChatActivity extends AppCompatActivity{
                 llSend.setAlpha(1f);
                 llSend.setEnabled(true);
             });
+
+            //Изменяем timestamp для сортировки
+            databaseReference.child("users").child(userId).child("chats").child(chatId).setValue(System.currentTimeMillis());
+            databaseReference.child("users").child(currentUserId).child("chats").child(chatId).setValue(System.currentTimeMillis());
 
         }
     }
@@ -534,26 +550,16 @@ public class ChatActivity extends AppCompatActivity{
     }
 
     private void createPopupMessage(){ //Создаем popup
-        if(popupMessage == null){
-            System.out.println("PopupMessage: Now class is constructing...");
-            View llPopupInclude = findViewById(R.id.llPopupInclude);
-            View llPopupDark = findViewById(R.id.llPopupDark);
-            View llPopupBackground = findViewById(R.id.llPopupBackground);
-            View llPopupMessageEdit = findViewById(R.id.llPopupMessageEdit);
-            View llPopupMessageDelete = findViewById(R.id.llPopupMessageDelete);
-            Button btPopupMessageEdit = findViewById(R.id.btPopupMessageEdit);
-            Button btPopupMessageDelete = findViewById(R.id.btPopupMessageDelete);
+        View llPopupInclude = findViewById(R.id.llPopupInclude);
+        View llPopupDark = findViewById(R.id.llPopupDark);
+        View llPopupBackground = findViewById(R.id.llPopupBackground);
+        View llPopupMessageEdit = findViewById(R.id.llPopupMessageEdit);
+        View llPopupMessageDelete = findViewById(R.id.llPopupMessageDelete);
+        Button btPopupMessageEdit = findViewById(R.id.btPopupMessageEdit);
+        Button btPopupMessageDelete = findViewById(R.id.btPopupMessageDelete);
 
-
-            popupMessage = new PopupMessage(llPopupInclude, llPopupDark, llPopupBackground, llPopupMessageEdit, llPopupMessageDelete,
-                    btPopupMessageEdit, btPopupMessageDelete);
-        }else{
-            System.out.println("PopupMessage: Now class is already constructed");
-            System.out.println("PopupMessage: Removing object...");
-            popupMessage = null;
-            System.gc();
-            createPopupMessage();
-        }
+        popupMessage = new PopupMessage(llPopupInclude, llPopupDark, llPopupBackground, llPopupMessageEdit, llPopupMessageDelete,
+                btPopupMessageEdit, btPopupMessageDelete);
     }
 
     @Override
@@ -563,6 +569,7 @@ public class ChatActivity extends AppCompatActivity{
             ImageView blurImageView = findViewById(R.id.blurImageView);
 
             popupMessage.hide();
+            msgView.setVisibility(View.VISIBLE);
 
             blurImageView.setVisibility(View.INVISIBLE);
             llChat.animate().alpha(1).setDuration(250).start();

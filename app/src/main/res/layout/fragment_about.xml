@@ -1,0 +1,280 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".fragments.settings.AboutFragment">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:overScrollMode="always">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:animateLayoutChanges="true">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/llSettingsAboutApp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                >
+                <LinearLayout
+                    android:id="@+id/linearLayout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="50dp"
+                    android:gravity="center"
+                    android:orientation="horizontal"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    tools:ignore="UseCompoundDrawables">
+
+                    <ImageView
+                        android:id="@+id/ivLogo"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/logo_anim"
+                        android:orientation="horizontal"
+                        tools:ignore="ContentDescription,ImageContrastCheck" />
+
+                    <TextView
+                        style="@style/text"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="10dp"
+                        android:fontFamily="@font/nunito_sans_bold"
+                        android:text="@string/app_name"
+                        android:textSize="30sp" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/linearLayout"
+                    android:orientation="vertical">
+                    <TextView
+                        android:id="@+id/tvSettingsAboutAppHeader"
+                        style="@style/textSecondary"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginHorizontal="15dp"
+                        android:layout_marginTop="50dp"
+                        android:fontFamily="@font/fira_sans"
+                        android:text="@string/settings_app"
+                        android:textSize="15sp"
+                        />
+
+                    <androidx.constraintlayout.widget.ConstraintLayout
+                        android:id="@+id/llSettingsAboutAppVersion"
+                        style="@style/settings_item_start"
+                        android:layout_width="match_parent"
+                        android:layout_height="60dp"
+                        android:layout_marginTop="15dp"
+                        android:layout_marginHorizontal="15dp"
+                        >
+
+                        <LinearLayout
+                            style="@style/item"
+                            android:layout_width="70dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginEnd="15dp"
+                            android:gravity="center"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintTop_toTopOf="parent">
+
+                            <TextView
+                                style="@style/textSecondary"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginVertical="5dp"
+                                android:alpha="0.5"
+                                android:fontFamily="@font/fira_sans"
+                                android:text="@string/app_version_header"
+                                android:textSize="12sp" />
+                        </LinearLayout>
+
+                        <Button
+                            android:id="@+id/btSettingsApp"
+                            style="@style/settings_button_start"
+                            android:layout_width="match_parent"
+                            android:layout_height="0dp"
+                            android:fontFamily="@font/fira_sans"
+                            android:text="@string/app_version"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="parent" />
+                    </androidx.constraintlayout.widget.ConstraintLayout>
+
+                    <androidx.constraintlayout.widget.ConstraintLayout
+                        android:id="@+id/llSettingsAboutAppBuild"
+                        style="@style/settings_item_end"
+                        android:layout_width="match_parent"
+                        android:layout_height="60dp"
+                        android:layout_marginTop="-1dp"
+                        android:layout_marginHorizontal="15dp"
+
+                        >
+
+                        <LinearLayout
+                            style="@style/item"
+                            android:layout_width="70dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginEnd="15dp"
+                            android:gravity="center"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintTop_toTopOf="parent">
+
+                            <TextView
+                                style="@style/textSecondary"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginVertical="5dp"
+                                android:alpha="0.5"
+                                android:fontFamily="@font/fira_sans"
+                                android:text="@string/app_build_header"
+                                android:textSize="12sp" />
+                        </LinearLayout>
+
+                        <Button
+                            android:id="@+id/btSettingsAppBuild"
+                            style="@style/settings_button_end"
+                            android:layout_width="match_parent"
+                            android:layout_height="0dp"
+                            android:fontFamily="@font/fira_sans"
+                            android:text="@string/app_build"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="parent" />
+                    </androidx.constraintlayout.widget.ConstraintLayout>
+                </LinearLayout>
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/llSettingsAboutDev"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:visibility="gone"
+                tools:visibility="visible"
+                >
+                <LinearLayout
+                    android:id="@+id/llDevLogo"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="40dp"
+                    android:layout_marginEnd="10dp"
+                    android:gravity="center"
+                    android:orientation="horizontal"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    >
+
+                    <ImageView
+                        android:id="@+id/ivDevLogo"
+                        android:layout_width="70dp"
+                        android:layout_height="70dp"
+                        android:src="@drawable/dev_logo"
+                        tools:ignore="ContentDescription" />
+
+                    <TextView
+                        style="@style/text"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/nunito_sans_bold"
+                        android:text="@string/app_dev_name"
+                        android:textSize="30sp" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/llDevLogo"
+                    android:orientation="vertical">
+                    <TextView
+                        android:id="@+id/tvSettingsAboutDevHeader"
+                        style="@style/textSecondary"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginHorizontal="15dp"
+                        android:layout_marginTop="33dp"
+                        android:fontFamily="@font/fira_sans"
+                        android:text="@string/app_dev_header"
+                        android:textSize="15sp"
+                        />
+
+                    <androidx.constraintlayout.widget.ConstraintLayout
+                        android:id="@+id/llSettingsAboutDevVersion"
+                        style="@style/settings_item_both"
+                        android:layout_width="match_parent"
+                        android:layout_height="60dp"
+                        android:layout_marginTop="15dp"
+                        android:layout_marginHorizontal="15dp"
+                        >
+
+                        <LinearLayout
+                            style="@style/item"
+                            android:layout_width="70dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginEnd="15dp"
+                            android:gravity="center"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintTop_toTopOf="parent">
+
+                            <TextView
+                                style="@style/textSecondary"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginVertical="5dp"
+                                android:alpha="0.5"
+                                android:fontFamily="@font/fira_sans"
+                                android:text="@string/app_dev_site_header"
+                                android:textSize="12sp" />
+                        </LinearLayout>
+
+                        <Button
+                            android:id="@+id/btSettingsDev"
+                            style="@style/button_borderless"
+                            android:layout_width="match_parent"
+                            android:layout_height="0dp"
+                            android:fontFamily="@font/fira_sans"
+                            android:text="@string/app_dev_site"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toTopOf="parent" />
+                    </androidx.constraintlayout.widget.ConstraintLayout>
+
+                </LinearLayout>
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <TextView
+                android:id="@+id/tvShowAboutDev"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="50dp"
+                android:layout_marginHorizontal="15dp"
+                android:fontFamily="@font/fira_sans"
+                android:textColor="@color/type1"
+                android:textSize="15sp"
+                android:textAlignment="center"
+                android:text="@string/app_show_dev_info"/>
+        </LinearLayout>
+
+
+    </ScrollView>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

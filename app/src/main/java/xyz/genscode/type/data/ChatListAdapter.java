@@ -21,6 +21,7 @@ import com.google.firebase.database.GenericTypeIndicator;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -154,8 +155,7 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ChatLi
                                             @Override
                                             public void onCancelled(@NonNull DatabaseError error) {
                                                 //ERROR
-                                                ((MainActivity) context).dialog.showMessage(context.getResources().getString(R.string.chat_error_loading_header),
-                                                        context.getString(R.string.chat_error_loading_once_content)+" "+holder.tvName.getText().toString());
+                                                ((MainActivity) context).toast.show(context.getResources().getString(R.string.chat_error_loading));
                                             }
                                         });
                                     }
@@ -186,6 +186,7 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ChatLi
                         @Override
                         public void onCancelled(@NonNull DatabaseError error) {
                             //ERROR
+                            ((MainActivity) context).toast.show(context.getResources().getString(R.string.chat_error_loading));
                         }
                     });
 
@@ -204,11 +205,30 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ChatLi
         });
     }
 
-    @SuppressLint("NotifyDataSetChanged")
-    public void setChats(ArrayList<String> chats){
-        this.chats.clear();
-        this.chats = chats;
-        notifyDataSetChanged();
+    public void addChat(String chatId){
+        Collections.reverse(chats);
+        chats.add(chatId);
+        Collections.reverse(chats);
+
+        notifyItemInserted(chats.indexOf(chatId));
+    }
+
+    public void removeChat(String chatId){
+        int index = chats.indexOf(chatId);
+        chats.remove(chatId);
+
+        notifyItemRemoved(index);
+    }
+
+    public void upChat(String chatId){
+        int index = chats.indexOf(chatId);
+        chats.remove(chatId);
+
+        Collections.reverse(chats);
+        chats.add(chatId);
+        Collections.reverse(chats);
+
+        notifyItemMoved(index, 0);
     }
 
     @Override

@@ -1,11 +1,14 @@
 package xyz.genscode.type;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.content.ContextCompat;
+import androidx.core.content.res.ResourcesCompat;
 
 import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.os.Bundle;
 import android.transition.Fade;
 import android.util.DisplayMetrics;
@@ -17,7 +20,9 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import xyz.genscode.type.data.SettingsHandler;
 import xyz.genscode.type.dialog.Dialog;
+import xyz.genscode.type.dialog.Toast;
 import xyz.genscode.type.fragments.ContactsFragment;
 import xyz.genscode.type.fragments.MessengerFragment;
 import xyz.genscode.type.fragments.SettingsFragment;
@@ -26,6 +31,7 @@ import xyz.genscode.type.models.User;
 public class MainActivity extends AppCompatActivity {
 
     public Dialog dialog;
+    public Toast toast;
 
     public static final int MESSENGER_FRAGMENT = 0;
     public static final int CONTACTS_FRAGMENT = 1;
@@ -42,11 +48,14 @@ public class MainActivity extends AppCompatActivity {
     View fcvMessenger; View fcvContacts; View fcvSettings; static int currentFragment;
     ValueAnimator animatorXMessenger; ValueAnimator animatorXContacts; ValueAnimator animatorXSettings;
 
+    static boolean hello = false;
+
     @SuppressLint("MissingInflatedId")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
         overridePendingTransition(0, 0);
 
         getWindow().setEnterTransition(new Fade());
@@ -65,7 +74,11 @@ public class MainActivity extends AppCompatActivity {
             user = (User) intent.getSerializableExtra("user");
         }
 
+        //Подгружаем настройки
+        SettingsHandler.getInstance().getSettings(getApplicationContext());
+
         createDialog();
+        createToast();
 
         tvTopIndicator = findViewById(R.id.tvTopIndicator);
         btBottomMessenger = findViewById(R.id.btMessenger);
@@ -102,6 +115,14 @@ public class MainActivity extends AppCompatActivity {
                 break;
         }
 
+        setThemeForActivity(-1);
+
+        //Приветствие
+        if(!hello) {
+            hello = true;
+            toast.show(getResources().getString(R.string.hello) + " " + user.getName() + "! 👋");
+        }
+
     }
 
     public void navigate(String menu){
@@ -117,7 +138,7 @@ public class MainActivity extends AppCompatActivity {
             animatorXMessenger.addUpdateListener(valueAnimator -> llBottomIndicator.setX((int) valueAnimator.getAnimatedValue()));
             animatorXMessenger.start();
 
-            fcvMessenger.setVisibility(View.VISIBLE); fcvContacts.setVisibility(View.INVISIBLE); fcvSettings.setVisibility(View.INVISIBLE);
+            fcvContacts.setVisibility(View.INVISIBLE); fcvSettings.setVisibility(View.INVISIBLE); fcvMessenger.setVisibility(View.VISIBLE);
 
             ivBottomMessenger.setColorFilter(ContextCompat.getColor(this, R.color.type3));
             ivBottomContacts.setColorFilter(ContextCompat.getColor(this, R.color.grey_300));
@@ -141,7 +162,7 @@ public class MainActivity extends AppCompatActivity {
             animatorXContacts.addUpdateListener(valueAnimator -> llBottomIndicator.setX((int) valueAnimator.getAnimatedValue()));
             animatorXContacts.start();
 
-            fcvMessenger.setVisibility(View.INVISIBLE); fcvContacts.setVisibility(View.VISIBLE); fcvSettings.setVisibility(View.INVISIBLE);
+            fcvMessenger.setVisibility(View.INVISIBLE); fcvSettings.setVisibility(View.INVISIBLE); fcvContacts.setVisibility(View.VISIBLE);
 
             initializeContacts();
 
@@ -224,6 +245,27 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    public void setThemeForActivity(int mode){
+        int theme;
+        if(mode == -1) { //Если передаем -1, тема ставится автоматически по настройкам
+            theme = SettingsHandler.getInstance().theme;
+        }else{
+            theme = mode;
+        }
+
+        switch (theme) {
+            case SettingsHandler.THEME_SYSTEM:
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
+                break;
+            case SettingsHandler.THEME_NIGHT:
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+                break;
+            case SettingsHandler.THEME_DAY:
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+                break;
+        }
+    }
+
     @Override
     public void onBackPressed() {
         if(dialog.messageActive == 1){
@@ -233,24 +275,22 @@ public class MainActivity extends AppCompatActivity {
         super.onBackPressed();
     }
 
-    private void createDialog(){
-        if(dialog == null){
-            System.out.println("Dialog: Now class is constructing...");
-            TextView messageHeader = findViewById(R.id.message_tvHeader);
-            TextView messageContent = findViewById(R.id.message_tvContent);
-            Button messageButton1 = findViewById(R.id.message_bt);
-            Button messageButton2 = findViewById(R.id.message_bt2);
-            View messageInclude = findViewById(R.id.llIncludeMessage);
-            View messageBody = findViewById(R.id.message_body);
+    private void createToast(){
+        View llIncludeToast = findViewById(R.id.llIncludeToast);
+        View llToast = findViewById(R.id.llToast);
+        TextView tvToastText = findViewById(R.id.tvToastText);
+        toast = new Toast(llIncludeToast, llToast, tvToastText);
+    }
 
-            dialog = new Dialog(messageHeader, messageContent, messageButton1, messageButton2, messageInclude, messageBody);
-        }else{
-            System.out.println("Dialog: Now class is already constructed");
-            System.out.println("Dialog: Removing object...");
-            dialog = null;
-            System.gc();
-            createDialog();
-        }
+    private void createDialog(){
+        TextView messageHeader = findViewById(R.id.message_tvHeader);
+        TextView messageContent = findViewById(R.id.message_tvContent);
+        Button messageButton1 = findViewById(R.id.message_bt);
+        Button messageButton2 = findViewById(R.id.message_bt2);
+        View messageInclude = findViewById(R.id.llIncludeMessage);
+        View messageBody = findViewById(R.id.message_body);
+
+        dialog = new Dialog(messageHeader, messageContent, messageButton1, messageButton2, messageInclude, messageBody);
     }
 
 }

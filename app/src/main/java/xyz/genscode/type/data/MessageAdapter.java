@@ -49,9 +49,11 @@ public class MessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     public int theme;
 
     //На случай создания функционала выделения нескольких сообщений
+    /*
     public boolean isSelectMode = false;
     ArrayList<Message> selectObjects = new ArrayList<Message>();
     ArrayList<View> selectObjectsView = new ArrayList<View>();
+     */
 
     public void  setClickListener(OnItemClickListener clickListener){
         this.clickListener = clickListener;
@@ -93,12 +95,10 @@ public class MessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         if (viewType == VIEW_MESSAGE) {
             View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_message, parent, false);
             return new ViewClass(view);
-        } else if (viewType == VIEW_DATE) {
+        } else {
             View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_message_date, parent, false);
             dateViewHolder = new DateViewHolder(view);
             return dateViewHolder;
-        } else {
-            return null;
         }
 
     }
@@ -176,9 +176,7 @@ public class MessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                                         .child(chatId)
                                         .child("messages")
                                         .child(messageId)
-                                        .setValue(message).addOnCompleteListener(task -> {
-                                            if(task.isSuccessful()) System.out.println("Changed to read: " + messageId);
-                                        });
+                                        .setValue(message);
                             }
                         });
 
@@ -294,7 +292,6 @@ public class MessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                     messages.remove(0);
                     notifyItemRemoved(0);
                     messageDatePrevious = "";
-                    //System.out.println("date deleted" + messageDatePrevious);
                 }
                 break;
             }

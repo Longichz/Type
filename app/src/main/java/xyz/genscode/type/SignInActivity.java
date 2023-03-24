@@ -2,6 +2,7 @@ package xyz.genscode.type;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 
 import android.content.Context;
 import android.content.Intent;
@@ -38,7 +39,6 @@ import com.google.firebase.auth.PhoneAuthProvider;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
 
@@ -242,8 +242,6 @@ public class SignInActivity extends AppCompatActivity {
         tvPolicyPrivacy.setVisibility(View.GONE);
         tvCountryCode.setVisibility(View.GONE);
 
-
-
         tvSignIn.setText(getResources().getString(R.string.type_name));
 
         ivEditPhoneNumber.setOnClickListener(view -> {
@@ -254,14 +252,12 @@ public class SignInActivity extends AppCompatActivity {
         btGetSms.setOnClickListener(view -> {
             if(etPhone.getText().length() < 1){
                 tvPolicyPrivacy.setText(getResources().getString(R.string.invalid_name));
-                tvPolicyPrivacy.setTextColor(getResources().getColor(R.color.red));
+                tvPolicyPrivacy.setTextColor(ContextCompat.getColor(this, R.color.red));
                 tvPolicyPrivacy.setVisibility(View.VISIBLE);
                 Vibrator vibrator = (Vibrator) getApplicationContext().getSystemService(Context.VIBRATOR_SERVICE);
                 if(vibrator.hasVibrator()){
                     vibrator.vibrate(20);
-                    handler.postDelayed((Runnable) () -> {
-                        vibrator.vibrate(20);
-                    }, 150);
+                    handler.postDelayed((Runnable) () -> vibrator.vibrate(20), 150);
                 }
             }else{
                 btGetSms.setEnabled(false);
@@ -278,8 +274,6 @@ public class SignInActivity extends AppCompatActivity {
                 databaseReference.child(firebaseUser.getUid()).setValue(user).addOnCompleteListener(task -> {
                     if(task.isSuccessful()){
                         goToMainActivity(user);
-                    }else{
-                        //ERROR CONNECTION
                     }
                 });
             }
@@ -342,9 +336,7 @@ public class SignInActivity extends AppCompatActivity {
                 Vibrator vibrator = (Vibrator) getApplicationContext().getSystemService(Context.VIBRATOR_SERVICE);
                 if(vibrator.hasVibrator()){
                     vibrator.vibrate(20);
-                    handler.postDelayed(() -> {
-                        vibrator.vibrate(20);
-                    }, 150);
+                    handler.postDelayed(() -> vibrator.vibrate(20), 150);
                 }
 
                 editPhoneNumber();
@@ -397,19 +389,17 @@ public class SignInActivity extends AppCompatActivity {
                         Vibrator vibrator = (Vibrator) getApplicationContext().getSystemService(Context.VIBRATOR_SERVICE);
                         if(vibrator.hasVibrator()){
                             vibrator.vibrate(20);
-                            handler.postDelayed((Runnable) () -> {
-                                vibrator.vibrate(20);
-                            }, 150);
+                            handler.postDelayed((Runnable) () -> vibrator.vibrate(20), 150);
                         }
 
                         tvPolicyPrivacy.setVisibility(View.VISIBLE);
                         if (task.getException() instanceof FirebaseAuthInvalidCredentialsException) {
                             tvPolicyPrivacy.setText(getResources().getString(R.string.invalid_code));
-                            tvPolicyPrivacy.setTextColor(getResources().getColor(R.color.red));
+                            tvPolicyPrivacy.setTextColor(ContextCompat.getColor(this, R.color.red));
                             etPhone.setText("");
                         }else{
                             tvPolicyPrivacy.setText(getResources().getString(R.string.error_auth));
-                            tvPolicyPrivacy.setTextColor(getResources().getColor(R.color.red));
+                            tvPolicyPrivacy.setTextColor(ContextCompat.getColor(this, R.color.red));
                         }
                     }
                 });
@@ -428,33 +418,8 @@ public class SignInActivity extends AppCompatActivity {
                     editName();
                 }
 
-            } else {
-                //CONNECT ERROR
             }
         });
-
-        /*
-
-        Query query = databaseReference.orderByChild("id").equalTo(firebaseUser.getUid());
-
-        query.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                if (dataSnapshot.exists()) {
-                    User user = dataSnapshot.getValue(User.class);
-                    goToMainActivity(user);
-                } else {
-                    editName();
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-                //ERROR CONECTION
-            }
-        });
-
-         */
 
     }
 
@@ -480,16 +445,12 @@ public class SignInActivity extends AppCompatActivity {
         cm.registerDefaultNetworkCallback(new ConnectivityManager.NetworkCallback() {
             @Override
             public void onAvailable(Network network) {
-                runOnUiThread(() -> {
-                    editPhoneNumber();
-                });
+                runOnUiThread(() -> editPhoneNumber());
             }
 
             @Override
             public void onLost(Network network) {
-                runOnUiThread(() -> {
-                    waitingForNetwork();
-                });
+                runOnUiThread(() -> waitingForNetwork());
 
             }
 

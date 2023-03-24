@@ -8,7 +8,6 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -33,7 +32,6 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.List;
 
-import xyz.genscode.type.ChatActivity;
 import xyz.genscode.type.MainActivity;
 import xyz.genscode.type.ProfileActivity;
 import xyz.genscode.type.R;
@@ -48,6 +46,7 @@ public class ContactsFragment extends Fragment {
     View view, llLoading;
     User mUser;
     static List<Contacts.Contact> contacts = new ArrayList<>();
+    static ArrayList<Contacts.Contact> searchContacts = new ArrayList<>();
     RecyclerView rvContactsList;
 
     @Override
@@ -70,10 +69,12 @@ public class ContactsFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         if(mUser == null) {
+            assert getContext() != null;
             ((MainActivity) getContext()).navigate("messenger");
             return;
         }
 
+        //Запуск анимации для loading
         Handler handler = new Handler();
         Animation anim = new AlphaAnimation(0.5f, 1.0f); anim.setDuration(250); anim.setRepeatMode(Animation.REVERSE); anim.setRepeatCount(Animation.INFINITE);
         Animation anim2 = new AlphaAnimation(0.5f, 1.0f); anim2.setDuration(250); anim2.setRepeatMode(Animation.REVERSE); anim2.setRepeatCount(Animation.INFINITE);
@@ -82,7 +83,6 @@ public class ContactsFragment extends Fragment {
         ImageView loading2 = view.findViewById(R.id.ivContactsLoading2); handler.postDelayed(() -> loading2.startAnimation(anim2), 125);
         ImageView loading3 = view.findViewById(R.id.ivContactsLoading3); handler.postDelayed(() -> loading3.startAnimation(anim3), 250);
         llLoading = view.findViewById(R.id.llContactsLoading);
-
 
         View llStartDialog = view.findViewById(R.id.llContactsStartDialog);
         EditText etSearch = view.findViewById(R.id.etContactsSearch);
@@ -96,24 +96,29 @@ public class ContactsFragment extends Fragment {
         etSearch.setFilters(new InputFilter[]{new InputFilter.LengthFilter(32)});
         etSearch.addTextChangedListener(new TextWatcher() {
             @Override
-            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
-            }
-
-            @Override
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                if(PhoneNumberUtils.isGlobalPhoneNumber(charSequence.toString()) && charSequence.length() >= 10){
-                    llStartDialog.setVisibility(View.VISIBLE);
-                    btStartDialog.setText(charSequence);
+                if(PhoneNumberUtils.isGlobalPhoneNumber(charSequence.toString())){ //Похож ли, введенный в поиск текст на номер телефона
+
+                    //Если номер длиннее 10 чисел, показываем кнопку глобального поиска по номеру
+                    if(charSequence.length() >= 10) {
+                        llStartDialog.setVisibility(View.VISIBLE);
+                        btStartDialog.setText(charSequence);
+                    }
+
+                    searchByNumber(charSequence.toString().trim());
                 }else{
                     llStartDialog.setVisibility(View.GONE);
+
+                    searchByName(charSequence.toString().trim());
+                }
+
+                if(charSequence.length() == 0){
+                    loadContacts(); //Если в поиске ничего нету, загружаем полный список контактов
                 }
             }
 
-            @Override
-            public void afterTextChanged(Editable editable) {
-
-            }
+            @Override public void afterTextChanged(Editable editable) {}
+            @Override public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {}
         });
 
         btStartDialog.setOnClickListener(view1 -> {
@@ -135,22 +140,60 @@ public class ContactsFragment extends Fragment {
 
     }
 
-    public void getContacts(){
-        System.out.println(contacts.size());
-        if(contacts.size() == 0) {
+    //Ищем контакт по номеру
+    private void searchByNumber(String searchNumber){
+        if(contacts.size() > 0){
+            searchContacts.clear();
 
+            for (Contacts.Contact contact:contacts) {
+                String contactNumber = contact.getPhoneNumber();
+                if(contactNumber.contains(searchNumber)){
+                    searchContacts.add(contact);
+                }
+            }
+
+            loadContacts(true); //true, значит в адаптер передастся searchContacts список
+
+        }
+    }
+
+    //Ищем по имени
+    private void searchByName(String searchName){
+        if(contacts.size() > 0){
+            searchContacts.clear();
+
+            for (Contacts.Contact contact:contacts) {
+                String contactName = contact.getName().toLowerCase();
+                if(contactName.contains(searchName.toLowerCase())){
+                    searchContacts.add(contact);
+                }
+            }
+
+            loadContacts(true); //true, значит в адаптер передастся searchContacts список
+
+        }
+    }
+
+    //Создание списка contacts
+    public void getContacts(){
+        if(contacts.size() == 0) { //контакты еще не загружены
+            assert getContext() != null;
             int permissionStatus = ContextCompat.checkSelfPermission(getContext(), android.Manifest.permission.READ_CONTACTS);
 
-            if (permissionStatus == PackageManager.PERMISSION_GRANTED) {
+            if (permissionStatus == PackageManager.PERMISSION_GRANTED) { //Есть ли разрешение на чтение контактов?
                 Thread thr = new Thread(() -> {
-                    contacts = Contacts.getContacts(view.getContext());
-                    getActivity().runOnUiThread(this::loadContacts);
+                    contacts = Contacts.getContacts(view.getContext()); //Обращаемся к Utils.Contacts для получения всех валидных и форматированных контактов
+
+                    assert getActivity() != null;
+                    getActivity().runOnUiThread(this::loadContacts); //Отображаем контакты из списка
                 });
                 thr.start();
 
-            } else {
-                if (!shouldShowRequestPermissionRationale(
-                        Manifest.permission.READ_CONTACTS)) {
+            } else { //разрешения на чтение контактов нету
+
+                if (shouldShowRequestPermissionRationale(
+                        Manifest.permission.READ_CONTACTS)) { //Можем ли мы запросить окно с разрешением?
+                    assert getActivity() != null;
                     ((MainActivity) getActivity()).dialog.showMessage(
                             getResources().getString(R.string.contacts_permission_header),
                             getResources().getString(R.string.contacts_permission_content),
@@ -168,7 +211,7 @@ public class ContactsFragment extends Fragment {
                         loadContacts();
                         ((MainActivity) getActivity()).dialog.hideMessage();
                     });
-                }else{
+                }else{ //Пользователь не соглашается на чтение контактов, оставляем текст об этом.
                     onPermissionDenied();
                 }
             }
@@ -177,40 +220,67 @@ public class ContactsFragment extends Fragment {
         }
     }
 
+    //Отображение контактов из arraylist contacts или searchContacts
     public void loadContacts(){
+        loadContacts(false);
+    }
+
+    public void loadContacts(boolean isSearch){ //isSearch, значит в адаптер передастся searchContacts список, иначе все контакты
+        TextView tvNoContacts = view.findViewById(R.id.tvContactsNoContacts); //tv Не найден контакт или у вас нету контактов
+        tvNoContacts.setVisibility(View.GONE);
+
         llLoading.setVisibility(View.VISIBLE);
-        if (contacts.size() > 0) {
-            ContactsAdapter contactsAdapter = new ContactsAdapter(view.getContext(), contacts, mUser);
+        if (!isSearch) {
+            ContactsAdapter contactsAdapter = new ContactsAdapter(view.getContext(), contacts, mUser); //Создаем адаптер со всеми контактами
             rvContactsList.setAdapter(contactsAdapter);
+
             llLoading.setVisibility(View.GONE);
-        } else {
-            TextView tvNoContacts = view.findViewById(R.id.tvContactsNoContacts);
-            tvNoContacts.setVisibility(View.VISIBLE);
+
+            if (contacts.size() == 0){
+                //Нету контактов
+                tvNoContacts = view.findViewById(R.id.tvContactsNoContacts);
+                tvNoContacts.setText(getResources().getString(R.string.contacts_no_contacts));
+                tvNoContacts.setVisibility(View.VISIBLE);
+            }
+        }else{
+            ContactsAdapter contactsAdapter = new ContactsAdapter(view.getContext(), searchContacts, mUser); //Создаем адаптер с найденными контактами
+            rvContactsList.setAdapter(contactsAdapter);
+
             llLoading.setVisibility(View.GONE);
+
+            if (searchContacts.size() == 0){
+                //Нету найденных контактов
+                tvNoContacts.setText(getResources().getString(R.string.contacts_zero_find_contacts));
+                tvNoContacts.setVisibility(View.VISIBLE);
+            }
         }
     }
 
+    //Получаем ответ на запрос чтения контактов
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         switch (requestCode) {
             case PERMISSION_READ_CONTACTS:
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    // permission granted
+                    // разрешение есть
                     getContacts();
                 } else {
-                    // permission denied
+                    // разрешения нет
                     onPermissionDenied();
                 }
                 break;
         }
     }
 
+    //Запрещено читать контакты
     private void onPermissionDenied(){
+        //Устанавливаем кнопку для ручного разрешения на чтение контактов
         TextView tvNoContacts = view.findViewById(R.id.tvContactsNoContacts);
         tvNoContacts.setText(getResources().getString(R.string.contacts_permission_denied));
         tvNoContacts.setVisibility(View.VISIBLE);
         tvNoContacts.setOnClickListener(view -> {
+            assert getActivity() != null;
             ((MainActivity) getActivity()).dialog.showMessage(
                     getResources().getString(R.string.contacts_permission_header),
                     getResources().getString(R.string.contacts_permission_content),
@@ -221,12 +291,17 @@ public class ContactsFragment extends Fragment {
             Button messageButton2 = ((MainActivity) getActivity()).dialog.getMessageButton2();
 
             messageButton1.setOnClickListener(view1 -> {
-                Intent intent = new Intent();
-                intent.setAction(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
-                Uri uri = Uri.fromParts("package", getActivity().getPackageName(), null);
-                intent.setData(uri);
-                startActivity(intent);
                 ((MainActivity) getActivity()).dialog.hideMessage();
+
+                if(shouldShowRequestPermissionRationale(Manifest.permission.READ_CONTACTS)){
+                    requestPermissions(new String[]{Manifest.permission.READ_CONTACTS}, PERMISSION_READ_CONTACTS);
+                }else{
+                    Intent intent = new Intent();
+                    intent.setAction(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+                    Uri uri = Uri.fromParts("package", getActivity().getPackageName(), null);
+                    intent.setData(uri);
+                    startActivity(intent);
+                }
             });
             messageButton2.setOnClickListener(view1 -> {
                 loadContacts();
@@ -235,7 +310,5 @@ public class ContactsFragment extends Fragment {
         });
         llLoading.setVisibility(View.GONE);
     }
-
-
 
 }

@@ -7,12 +7,13 @@
 
     <LinearLayout
         android:id="@+id/llPopupDark"
-        android:clickable="true"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="horizontal"
+        android:background="@color/black10"
+        android:clickable="true"
         android:focusable="true"
-        android:background="@color/black10"/>
+        android:orientation="horizontal"
+        tools:ignore="SpeakableTextPresentCheck" />
 
     <LinearLayout
         android:id="@+id/llPopupMessageRoot"
@@ -33,7 +34,8 @@
             android:layout_marginHorizontal="15dp"
             android:background="@drawable/message_mine_day"
             android:orientation="horizontal"
-            android:weightSum="10">
+            android:weightSum="10"
+            tools:ignore="UselessParent">
 
             <TextView
                 android:id="@+id/tvPopupMessage"
@@ -53,7 +55,8 @@
                 android:layout_marginEnd="10dp"
                 android:layout_marginBottom="7dp"
                 android:layout_weight="10"
-                android:gravity="bottom">
+                android:gravity="bottom"
+                tools:ignore="InefficientWeight">
 
                 <TextView
                     android:id="@+id/tvPopupMessageTimestamp"
@@ -62,7 +65,8 @@
                     android:alpha="0.5"
                     android:text="10:00"
                     android:textColor="@color/grey_200"
-                    android:textSize="13sp" />
+                    android:textSize="13sp"
+                    tools:ignore="HardcodedText,TextContrastCheck" />
             </LinearLayout>
         </LinearLayout>
     </LinearLayout>
@@ -87,6 +91,8 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toTopOf="@+id/llPopupMessageDelete"
+            android:layout_marginBottom="5dp"
             >
 
             <ImageView
@@ -98,7 +104,8 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 app:srcCompat="@drawable/edit"
-                style="@style/tint" />
+                style="@style/tint"
+                tools:ignore="ContentDescription" />
 
             <TextView
                 android:id="@+id/tvPopupMessageEdit"
@@ -110,20 +117,20 @@
                 style="@style/text"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toEndOf="@+id/ivPopupMessageEdit"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintTop_toTopOf="parent"
+                tools:ignore="VisualLintOverlap" />
 
             <Button
                 android:id="@+id/btPopupMessageEdit"
-                style="@style/Widget.Material3.Button.TextButton"
+                style="@style/button_borderless"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:minHeight="50dp"
-                app:rippleColor="@color/grey_00"
-                app:cornerRadius="15dp"
+                android:minHeight="30dp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="@+id/ivPopupMessageEdit"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintTop_toTopOf="parent"
+                tools:ignore="SpeakableTextPresentCheck,TouchTargetSizeCheck,VisualLintButtonSize" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -131,10 +138,9 @@
             android:id="@+id/llPopupMessageDelete"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/llPopupMessageEdit"
-            >
+            app:layout_constraintStart_toStartOf="parent">
 
             <ImageView
                 android:id="@+id/ivPopupMessageDelete"
@@ -145,7 +151,8 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 app:srcCompat="@drawable/trash"
-                app:tint="@color/red" />
+                app:tint="@color/red"
+                tools:ignore="ContentDescription" />
 
             <TextView
                 android:id="@+id/tvPopupMessageDelete"
@@ -153,24 +160,24 @@
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="15dp"
                 android:text="@string/message_remove"
-                android:textSize="14sp"
                 android:textColor="@color/red"
+                android:textSize="14sp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toEndOf="@+id/ivPopupMessageDelete"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintTop_toTopOf="parent"
+                tools:ignore="TextContrastCheck,VisualLintOverlap" />
 
             <Button
                 android:id="@+id/btPopupMessageDelete"
-                style="@style/Widget.Material3.Button.TextButton"
+                style="@style/button_borderless_red"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:minHeight="50dp"
-                app:rippleColor="@color/red_ripple"
-                app:cornerRadius="15dp"
+                android:minHeight="30dp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="@+id/ivPopupMessageDelete"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintTop_toTopOf="parent"
+                tools:ignore="SpeakableTextPresentCheck,TouchTargetSizeCheck,VisualLintButtonSize" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 

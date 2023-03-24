@@ -15,12 +15,12 @@ public class User implements Serializable {
     private String info;
     private String avatarUrl;
     private String avatarColor;
-    private HashMap<String, Boolean> chats = new HashMap<>();
+    private HashMap<String, Long> chats = new HashMap<>();
 
     public User() {
     }
 
-    public User(String id, String phone, String name, String info, String avatarUrl, String avatarColor, HashMap<String, Boolean> chats) {
+    public User(String id, String phone, String name, String info, String avatarUrl, String avatarColor, HashMap<String, Long> chats) {
         this.id = id;
         this.phone = phone;
         this.name = name;
@@ -30,16 +30,16 @@ public class User implements Serializable {
         this.chats = chats;
     }
 
-    public HashMap<String, Boolean> getChats() {
+    public HashMap<String, Long> getChats() {
         return chats;
     }
 
-    public void setChats(HashMap<String, Boolean> chats) {
+    public void setChats(HashMap<String, Long> chats) {
         this.chats = chats;
     }
 
     public void addChat(String id) {
-        if(this.chats != null) chats.put(id, true);
+        if(this.chats != null) chats.put(id, System.currentTimeMillis());
     }
 
     public String getId() {

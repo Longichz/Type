@@ -10,7 +10,6 @@
     android:id="@+id/llChatRoot"
     >
 
-
     <LinearLayout
         android:id="@+id/llChatLoading"
         android:layout_width="wrap_content"
@@ -67,7 +66,8 @@
             android:layout_weight="10" />
 
         <LinearLayout
-            android:id="@+id/linearLayout3"
+            android:id="@+id/llChatFieldBackground"
+            android:visibility="gone"
             android:layout_width="match_parent"
             android:layout_height="80dp"
             android:gravity="bottom"

@@ -6,6 +6,7 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity"
     style="@style/background"
+    android:animateLayoutChanges="true"
     >
 
     <LinearLayout
@@ -29,7 +30,8 @@
             android:text="@string/messenger"
             android:textAlignment="center"
             android:textColor="@color/white"
-            android:textSize="20sp" />
+            android:textSize="20sp"
+            tools:ignore="TextContrastCheck" />
     </LinearLayout>
 
     <LinearLayout
@@ -43,31 +45,34 @@
         android:weightSum="4"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent">
+        app:layout_constraintStart_toStartOf="parent"
+        android:baselineAligned="false">
 
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1.2"
             android:gravity="center"
-            android:weightSum="10">
+            android:weightSum="10"
+            android:baselineAligned="false">
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
-                android:layout_weight="8">
+                android:layout_weight="8"
+                tools:ignore="NestedWeights">
 
                 <Button
                     android:id="@+id/btMessenger"
-                    style="@style/Widget.Material3.Button.TextButton"
+                    android:background="@drawable/button_navigator"
+                    android:layout_marginVertical="5dp"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    app:cornerRadius="100dp"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
-                    app:rippleColor="@color/grey_00" />
+                    tools:ignore="SpeakableTextPresentCheck,VisualLintButtonSize" />
 
                 <ImageView
                     android:id="@+id/ivMessenger"
@@ -79,7 +84,8 @@
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
                     app:srcCompat="@drawable/ic_round_messenger_24"
-                    app:tint="@color/type1" />
+                    app:tint="@color/type1"
+                    tools:ignore="ContentDescription,ImageContrastCheck" />
             </androidx.constraintlayout.widget.ConstraintLayout>
 
         </LinearLayout>
@@ -89,24 +95,26 @@
             android:layout_height="match_parent"
             android:layout_weight="1.2"
             android:gravity="center"
-            android:weightSum="10">
+            android:weightSum="10"
+            android:baselineAligned="false">
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
-                android:layout_weight="8">
+                android:layout_weight="8"
+                tools:ignore="NestedWeights">
 
                 <Button
                     android:id="@+id/btContacts"
-                    style="@style/Widget.Material3.Button.TextButton"
+                    android:background="@drawable/button_navigator"
+                    android:layout_marginVertical="5dp"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    app:cornerRadius="100dp"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
-                    app:rippleColor="@color/grey_00" />
+                    tools:ignore="SpeakableTextPresentCheck,VisualLintButtonSize" />
 
                 <ImageView
                     android:id="@+id/ivContacts"
@@ -118,7 +126,8 @@
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
                     app:srcCompat="@drawable/ic_round_contact_24"
-                    app:tint="@color/grey_300" />
+                    app:tint="@color/grey_300"
+                    tools:ignore="ContentDescription" />
             </androidx.constraintlayout.widget.ConstraintLayout>
 
         </LinearLayout>
@@ -128,24 +137,26 @@
             android:layout_height="match_parent"
             android:layout_weight="1.2"
             android:gravity="center"
-            android:weightSum="10">
+            android:weightSum="10"
+            android:baselineAligned="false">
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
-                android:layout_weight="8">
+                android:layout_weight="8"
+                tools:ignore="NestedWeights">
 
                 <Button
                     android:id="@+id/btSettings"
-                    style="@style/Widget.Material3.Button.TextButton"
+                    android:background="@drawable/button_navigator"
+                    android:layout_marginVertical="5dp"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    app:cornerRadius="100dp"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
-                    app:rippleColor="@color/grey_00" />
+                    tools:ignore="SpeakableTextPresentCheck,VisualLintButtonSize" />
 
                 <ImageView
                     android:id="@+id/ivSettings"
@@ -157,7 +168,8 @@
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
                     app:srcCompat="@drawable/ic_round_settings_24"
-                    app:tint="@color/grey_300" />
+                    app:tint="@color/grey_300"
+                    tools:ignore="ContentDescription" />
             </androidx.constraintlayout.widget.ConstraintLayout>
 
         </LinearLayout>
@@ -209,6 +221,17 @@
         app:layout_constraintTop_toBottomOf="@+id/llTopBackgroundMain"
         tools:layout="@layout/fragment_settings"
         android:visibility="invisible"/>
+
+    <include
+        android:id="@+id/llIncludeToast"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:visibility="gone"
+        layout="@layout/toast_screen"
+        app:layout_constraintBottom_toTopOf="@id/llBottomBackground"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <include
         android:id="@+id/llIncludeMessage"

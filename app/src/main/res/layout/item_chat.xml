@@ -44,15 +44,32 @@
         app:layout_constraintStart_toEndOf="@+id/llChatListAvatarBackground"
         app:layout_constraintTop_toTopOf="parent">
 
-        <TextView
-            android:id="@+id/tvChatListUserName"
-            style="@style/text"
+        <LinearLayout
+            android:orientation="horizontal"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="3dp"
-            android:fontFamily="@font/fira_sans_medium"
-            android:text="Name"
-            android:textSize="16sp" />
+            android:weightSum="10">
+            <TextView
+                android:id="@+id/tvChatListUserName"
+                style="@style/text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="3dp"
+                android:fontFamily="@font/fira_sans_medium"
+                android:text="Name"
+                android:maxLines="1"
+                android:ellipsize="end"
+                android:textSize="16sp" />
+            <ImageView
+                android:layout_width="15dp"
+                android:layout_height="match_parent"
+                android:layout_marginStart="10dp"
+                android:src="@drawable/muted"
+                style="@style/tint"
+                android:alpha="0.3"/>
+        </LinearLayout>
+
+
 
         <TextView
             android:id="@+id/tvChatListLastMessage"

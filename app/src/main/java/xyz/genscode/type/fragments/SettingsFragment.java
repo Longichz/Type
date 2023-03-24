@@ -9,15 +9,10 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
-import android.os.Handler;
-import android.provider.ContactsContract;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.AlphaAnimation;
-import android.view.animation.Animation;
 import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.google.firebase.auth.FirebaseAuth;
@@ -26,21 +21,25 @@ import com.google.firebase.database.FirebaseDatabase;
 
 import xyz.genscode.type.EditActivity;
 import xyz.genscode.type.MainActivity;
+import xyz.genscode.type.ProfileActivity;
 import xyz.genscode.type.R;
+import xyz.genscode.type.SettingsActivity;
 import xyz.genscode.type.SignInActivity;
 import xyz.genscode.type.models.User;
 
 
 public class SettingsFragment extends Fragment {
+    public static final int SETTINGS_ABOUT = 0;
+    public static final int SETTINGS_DESIGN = 1;
+
     public static final String ARG_USER = "arg_user";
     private static final int EDIT_NAME = 1;
     private static final int EDIT_INFO = 2;
     private static final int RESULT_OK = -1;
-    private static final int RESULT_CANCELLED = 0;
     private User mUser;
     View view;
 
-    Button btSignOut; Button btEditName; Button btEditInfo;
+    Button btSignOut; Button btEditName; Button btEditInfo; Button btProfile;
 
 
     @Override
@@ -77,6 +76,7 @@ public class SettingsFragment extends Fragment {
         btSignOut = view.findViewById(R.id.btSettingsSignOut);
         btEditName = view.findViewById(R.id.btSettingsName);
         btEditInfo = view.findViewById(R.id.btSettingsInfo);
+        btProfile = view.findViewById(R.id.btSettingsProfile);
 
         if(mUser != null){
             try {
@@ -128,7 +128,6 @@ public class SettingsFragment extends Fragment {
         }
     }
 
-
     private void updateUser(User user){
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference databaseReference = database.getReference().child("users");
@@ -138,14 +137,25 @@ public class SettingsFragment extends Fragment {
                 mUser = user;
                 setupUser();
             }else{
-                //CONNECT ERROR
+                assert getContext() != null;
+                ((MainActivity) getContext()).toast.show(getResources().getString(R.string.error));
             }
         });
     }
 
     private void setSettingsButtons(){
+        //Выйти из аккаунта
         btSignOut.setOnClickListener(view1 -> signOut());
 
+        //Переход к своему профилю
+        btProfile.setOnClickListener(view1 ->{
+            Intent profileIntent = new Intent(getContext(), ProfileActivity.class);
+            profileIntent.putExtra("userId", mUser.getId());
+            profileIntent.putExtra("currentUser", mUser);
+            startActivity(profileIntent);
+        });
+
+        //Изменить О себе
         btEditInfo.setOnClickListener(view1 ->{
             Intent intent = new Intent(getContext(), EditActivity.class);
             intent.putExtra("header", getResources().getString(R.string.settings_info));
@@ -154,17 +164,35 @@ public class SettingsFragment extends Fragment {
             startActivityForResult(intent, EDIT_INFO);
         });
 
+        //Изменить Имя
         btEditName.setOnClickListener(view1 ->{
             Intent intent = new Intent(getContext(), EditActivity.class);
             intent.putExtra("editValue", mUser.getName());
             startActivityForResult(intent, EDIT_NAME);
+        });
+
+        //Настройки:
+        Intent settingsIntent = new Intent(getContext(), SettingsActivity.class);
+
+        //Оформление
+        Button btDesign = view.findViewById(R.id.btSettingsDesign);
+        btDesign.setOnClickListener(view1 -> {
+            settingsIntent.putExtra("settings", SETTINGS_DESIGN);
+            startActivity(settingsIntent);
+        });
+
+        //О приложении
+        Button btAbout = view.findViewById(R.id.btSettingsAbout);
+        btAbout.setOnClickListener(view1 -> {
+            settingsIntent.putExtra("settings", SETTINGS_ABOUT);
+            startActivity(settingsIntent);
         });
     }
 
     public void signOut(){
         FirebaseAuth.getInstance().signOut();
         Intent intent = new Intent(getContext(), SignInActivity.class);
-        getContext().startActivity(intent);
+        startActivity(intent);
     }
 
 }

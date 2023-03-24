@@ -21,7 +21,7 @@
             android:id="@+id/llSettingsAvatarBackground"
             android:layout_width="50dp"
             android:layout_height="50dp"
-            android:layout_margin="15dp"
+            android:layout_margin="16dp"
             android:background="@drawable/oval"
             android:gravity="center"
             android:orientation="horizontal"
@@ -33,11 +33,12 @@
                 android:id="@+id/tvSettingsAvatar"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textStyle="bold"
                 android:text="A"
-                android:textSize="18sp"
                 android:textAlignment="center"
-                android:textColor="@color/white" />
+                android:textColor="@color/white"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                tools:ignore="HardcodedText,TextContrastCheck" />
         </LinearLayout>
 
         <LinearLayout
@@ -59,7 +60,8 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="3dp"
                 android:fontFamily="@font/fira_sans_medium"
-                android:text="Name" />
+                android:text="Name"
+                tools:ignore="HardcodedText" />
 
             <TextView
                 android:id="@+id/tvSettingsUserStatus"
@@ -67,9 +69,21 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:fontFamily="@font/fira_sans"
-                android:text="Status" />
+                android:text="Status"
+                tools:ignore="HardcodedText" />
 
         </LinearLayout>
+
+        <Button
+            android:id="@+id/btSettingsProfile"
+            style="@style/button_borderless_20dp"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:ignore="TextSizeCheck" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -91,6 +105,19 @@
             android:layout_marginHorizontal="15dp"
             android:orientation="vertical">
 
+            <!--Настройки -->
+            <!--Настройки -->
+            <!--Настройки -->
+            <TextView
+                style="@style/textSecondary"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="15dp"
+                android:layout_marginBottom="20dp"
+                android:fontFamily="@font/fira_sans"
+                android:text="@string/user_profile"
+                android:textSize="15sp" />
+
             <androidx.constraintlayout.widget.ConstraintLayout
                 style="@style/settings_item_start"
                 android:layout_width="match_parent"
@@ -107,7 +134,8 @@
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
+                    app:layout_constraintTop_toTopOf="parent"
+                    tools:ignore="TextSizeCheck" />
             </androidx.constraintlayout.widget.ConstraintLayout>
 
             <androidx.constraintlayout.widget.ConstraintLayout
@@ -124,7 +152,8 @@
                     android:gravity="center"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="parent">
+                    app:layout_constraintTop_toTopOf="parent"
+                    tools:ignore="TextSizeCheck">
 
                     <TextView
                         style="@style/textSecondary"
@@ -134,7 +163,8 @@
                         android:alpha="0.5"
                         android:fontFamily="@font/fira_sans"
                         android:text="@string/settings_change"
-                        android:textSize="12sp" />
+                        android:textSize="12sp"
+                        tools:ignore="TextContrastCheck" />
                 </LinearLayout>
 
                 <Button
@@ -146,7 +176,8 @@
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
+                    app:layout_constraintTop_toTopOf="parent"
+                    tools:ignore="SpeakableTextPresentCheck" />
             </androidx.constraintlayout.widget.ConstraintLayout>
 
             <androidx.constraintlayout.widget.ConstraintLayout
@@ -165,7 +196,8 @@
                     android:gravity="center"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="parent">
+                    app:layout_constraintTop_toTopOf="parent"
+                    tools:ignore="TextSizeCheck">
 
                     <TextView
                         android:id="@+id/tvSettingsHintEditInfo"
@@ -176,7 +208,8 @@
                         android:alpha="0.5"
                         android:fontFamily="@font/fira_sans"
                         android:text="@string/settings_change"
-                        android:textSize="12sp" />
+                        android:textSize="12sp"
+                        tools:ignore="TextContrastCheck" />
                 </LinearLayout>
 
                 <Button
@@ -190,16 +223,21 @@
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
+                    app:layout_constraintTop_toTopOf="parent"
+                    tools:ignore="RtlSymmetry,TextSizeCheck" />
             </androidx.constraintlayout.widget.ConstraintLayout>
 
+
+            <!--Настройки -->
+            <!--Настройки -->
+            <!--Настройки -->
             <TextView
                 android:id="@+id/tvSettingsHeader"
                 style="@style/textSecondary"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginHorizontal="15dp"
                 android:layout_marginTop="35dp"
+                android:layout_marginBottom="20dp"
                 android:fontFamily="@font/fira_sans"
                 android:text="@string/settings"
                 android:textSize="15sp" />
@@ -208,7 +246,51 @@
                 style="@style/settings_item_start"
                 android:layout_width="match_parent"
                 android:layout_height="60dp"
-                android:layout_marginTop="20dp">
+                >
+
+                <LinearLayout
+                    style="@style/item"
+                    android:layout_width="70dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="15dp"
+                    android:gravity="center"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    tools:ignore="TextSizeCheck">
+
+                    <TextView
+                        style="@style/textSecondary"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginVertical="5dp"
+                        android:alpha="0.5"
+                        android:fontFamily="@font/fira_sans"
+                        android:text="@string/settings_configure"
+                        android:textSize="12sp"
+                        tools:ignore="TextContrastCheck" />
+                </LinearLayout>
+
+                <Button
+                    android:id="@+id/btSettingsDesign"
+                    style="@style/settings_button_start"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:fontFamily="@font/fira_sans"
+                    android:text="@string/design_header"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    tools:ignore="TextSizeCheck" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                style="@style/settings_item"
+                android:layout_width="match_parent"
+                android:layout_height="60dp"
+                android:layout_marginTop="-1dp"
+                >
 
                 <LinearLayout
                     style="@style/item"
@@ -228,12 +310,13 @@
                         android:alpha="0.5"
                         android:fontFamily="@font/fira_sans"
                         android:text="@string/settings_question"
-                        android:textSize="12sp" />
+                        android:textSize="12sp"
+                        tools:ignore="TextContrastCheck" />
                 </LinearLayout>
 
                 <Button
-                    android:id="@+id/btSettingsApp"
-                    style="@style/settings_button_start"
+                    android:id="@+id/btSettingsAbout"
+                    style="@style/settings_button"
                     android:layout_width="match_parent"
                     android:layout_height="0dp"
                     android:fontFamily="@font/fira_sans"
@@ -241,7 +324,8 @@
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
+                    app:layout_constraintTop_toTopOf="parent"
+                    tools:ignore="TextSizeCheck" />
             </androidx.constraintlayout.widget.ConstraintLayout>
 
             <androidx.constraintlayout.widget.ConstraintLayout
@@ -257,14 +341,15 @@
                     android:background="@drawable/button_settings_sign_out"
                     android:fontFamily="@font/fira_sans_medium"
                     android:paddingStart="15dp"
+                    android:text="@string/settings_sign_out"
                     android:textAlignment="viewStart"
                     android:textAllCaps="false"
-                    android:text="@string/settings_sign_out"
                     android:textColor="@color/red"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
+                    app:layout_constraintTop_toTopOf="parent"
+                    tools:ignore="RtlSymmetry,TextContrastCheck" />
             </androidx.constraintlayout.widget.ConstraintLayout>
         </LinearLayout>
     </ScrollView>

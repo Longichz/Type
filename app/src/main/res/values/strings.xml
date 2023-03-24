@@ -1,5 +1,25 @@
 <resources>
+    <string name="hello">Здравствуйте,</string>
     <string name="app_name">Type!</string>
+    <string name="app_dev_name">GENS</string>
+    <string name="app_version">1.0.0.0</string>
+    <string name="app_build">1</string>
+
+    <string name="app_version_header">Версия</string>
+    <string name="app_build_header">Сборка</string>
+    <string name="app_dev_header">О разработчике</string>
+    <string name="app_dev_site_header">Сайт</string>
+    <string name="app_dev_site">genscode.xyz</string>
+    <string name="app_show_dev_info">Показать информацию \nо разработчике</string>
+    <string name="app_hide_dev_info">Скрыть информацию \nо разработчике</string>
+
+    <string name="design_header">Оформление</string>
+    <string name="design_theme_header">Тема</string>
+    <string name="design_theme_day">Дневная</string>
+    <string name="design_theme_night">Ночная</string>
+    <string name="design_theme_system">Системная</string>
+    <string name="design_optimization_header">Оптимизация</string>
+    <string name="design_optimization_blur">Блюр</string>
 
     <string name="message_bt2">Отмена</string>
     <string name="message_bt">Понятно</string>
@@ -19,8 +39,6 @@
     <string name="chat_remove">Удалить</string>
     <string name="chat_remove_content">Вы уверены, что хотите удалить чат для всех без возможности восстановления?</string>
     <string name="chat_error_loading_header">Ошибка</string>
-    <string name="chat_error_loading_content">Не удалось загрузить ваши чаты 😥. \nСкоро вернемся в строй.</string>
-    <string name="chat_error_loading_once_content">Не удалось загрузить ваш чат с</string>
 
     <string name="user_profile">Профиль</string>
     <string name="user_removed">Удаленный аккаунт</string>
@@ -34,7 +52,7 @@
     <string name="user_invalid">Неизвестный</string>
     <string name="user_search">Найти</string>
 
-    <string name="loading">Подождите...</string>
+    <string name="loading">Подождите…</string>
     <string name="apply">Применить</string>
 
     <string name="hello_first_fragment">Hello first fragment</string>
@@ -45,15 +63,14 @@
     <string name="type_name">Как вас зовут?</string>
     <string name="type_sms_et">Код</string>
     <string name="type_name_et">Имя</string>
-    <string name="waiting_for_network">Ожидание сети...</string>
+    <string name="waiting_for_network">Ожидание сети…</string>
 
     <string name="phone">Телефон</string>
     <string name="country_code_ru">+7</string>
     <string name="invalid_code">Вы ввели неверный код</string>
     <string name="invalid_phone">Вы ввели неверный телефон</string>
     <string name="invalid_name">Вы ввели некорректное имя</string>
-    <string name="error_auth">Произошла ошибка авторизации</string>
-    <string name="quota_auth">Квота блевота епт</string>
+    <string name="quota_auth">Квота сообщений израсходована</string>
 
     <string name="privacy_policy">Нажимая на кнопку \"Получить СМС\", Вы соглашаетесь с <b>политикой конфиденциальности</b></string>
 
@@ -72,10 +89,15 @@
     <string name="contacts_search">Найти в Type!</string>
     <string name="contacts_type">Написать</string>
     <string name="contacts_no_contacts">У вас нету контактов.</string>
+    <string name="contacts_zero_find_contacts">Такого контакта нету.</string>
     <string name="contacts_permission_header">Внимание</string>
     <string name="contacts_permission_content">Чтобы найти своих знакомых, Вы должны разрешить приложению доступ к контактам.</string>
     <string name="contacts_permission_allow">Разрешить</string>
     <string name="contacts_permission_back">Отмена</string>
     <string name="contacts_permission_denied">Нажмите, чтобы разрешить приложению доступ к контактам.</string>
+
+    <string name="error">Что-то пошло не так 😥</string>
+    <string name="error_auth">Произошла ошибка авторизации</string>
+    <string name="chat_error_loading">Не удалось загрузить чат(ы) 😥.</string>
 
 </resources>
