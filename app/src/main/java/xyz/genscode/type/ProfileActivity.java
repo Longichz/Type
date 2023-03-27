@@ -42,6 +42,8 @@ public class ProfileActivity extends AppCompatActivity {
     TextView tvName, tvPhone, tvAbout, tvAvatar;
     Button btType, btCall;
 
+    private boolean foundChat = false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -173,29 +175,37 @@ public class ProfileActivity extends AppCompatActivity {
                         finish();
                         return;
                     }
-                    for (String chatId : chats) {
+                    for (int i = 0; i < chats.size(); i++) {
+                        String chatId = chats.get(i);
+                        int finalI = i;
                         databaseReference.child("chats").child(chatId).child("users").addListenerForSingleValueEvent(new ValueEventListener() {
                             @Override
                             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                                boolean foundChat = false;
-                                for (DataSnapshot userSnapshot : dataSnapshot.getChildren()) {
-                                    String userIdInChat = userSnapshot.getValue(String.class);
-                                    if (userIdInChat != null && userIdInChat.equals(userId)) {
-                                        // Нашли чат, содержащий userId
-                                        foundChat = true;
-
+                                if(!foundChat) {
+                                    for (DataSnapshot userSnapshot : dataSnapshot.getChildren()) {
+                                        String userIdInChat = userSnapshot.getValue(String.class);
+                                        System.out.println(chatId + ", " + userIdInChat + ":" + userId);
+                                        if (userIdInChat != null && userIdInChat.equals(userId)) {
+                                            // Нашли чат, содержащий userId
+                                            foundChat = true;
+                                            break;
+                                        }
+                                    }
+                                    // Если userId не найден в текущем чате, то проверяем следующий чат
+                                    System.out.println("chatFound: " + foundChat);
+                                    System.out.println("chatII: " + finalI);
+                                    if (foundChat) {
+                                        // Нашли существующий чат, стартуем с chatId
+                                        System.out.println("chatId: " + chatId);
                                         intent1.putExtra("chatId", chatId);
                                         startActivity(intent1);
                                         finish();
-                                        break;
                                     }
-                                }
-                                // Если userId не найден в текущем чате, то проверяем следующий чат
-                                if (!foundChat) {
-                                    // Не нашли ни один чат, содержащий userId, стартуем без chatId
+                                }else if (finalI + 1 > chats.size()) {
                                     startActivity(intent1);
                                     finish();
                                 }
+
                             }
                             @Override
                             public void onCancelled(@NonNull DatabaseError databaseError) { btType.setEnabled(true); }

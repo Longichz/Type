@@ -2,7 +2,7 @@
     <string name="hello">Здравствуйте,</string>
     <string name="app_name">Type!</string>
     <string name="app_dev_name">GENS</string>
-    <string name="app_version">1.0.0.0</string>
+    <string name="app_version">1.0.0.1</string>
     <string name="app_build">1</string>
 
     <string name="app_version_header">Версия</string>
